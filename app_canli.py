@@ -58,18 +58,22 @@ h2 {
 }
 h3 { font-size: 1.4rem !important; color: #7dd3fc !important; }
 
-/* KÖR EDEN MENÜ (DROPDOWN) DÜZELTİLDİ */
-ul[role="listbox"] {
+/* KÖR EDEN MENÜ (DROPDOWN) KESİN ÇÖZÜM */
+div[data-baseweb="select"] > div {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+div[data-baseweb="popover"] > div, ul[role="listbox"] {
     background-color: #0f172a !important;
-    border: 1px solid #38bdf8 !important;
-    border-radius: 10px !important;
 }
 li[role="option"] {
-    color: #ffffff !important;
+    background-color: transparent !important;
+    color: #f8fafc !important;
     font-weight: 600 !important;
     font-size: 1.1rem !important;
 }
-li[role="option"]:hover {
+li[role="option"]:hover, li[role="option"][aria-selected="true"] {
     background-color: #38bdf8 !important;
     color: #030712 !important;
 }
