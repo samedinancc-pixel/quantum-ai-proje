@@ -82,7 +82,7 @@ if 'g_adi' not in st.session_state:
         'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Standart Kurucu',
         'kutu1': 'Detaylı analiz için sol menüden bir senaryo yükleyin.', 
         'kutu2': 'Stratejik çözümünüzü (Actionable Intelligence vb.) buraya girin.', 
-        'analiz_hazir': False,
+        'analiz_hazir': False, 'op': 0,
         'fin': {}, 'sen_sec_box': 'Seçiniz...'
     })
 
@@ -505,7 +505,7 @@ if st.session_state.analiz_hazir:
     m4.markdown(f'<div class="metric-card"><div class="metric-title">Runway (Avg Burn)</div><div class="metric-value">{runway_text}</div></div>', unsafe_allow_html=True)
     m5.markdown(f'<div class="metric-card" style="border-left-color: #f59e0b;"><div class="metric-title">Başabaş (ROI)</div><div class="metric-value">{fin["basabas"]} Ay</div></div>', unsafe_allow_html=True)
 
-    # 🌟 ÇÖZÜM 2: KAYIP 7 GRAFİK 2'Lİ KOLONLAR HALİNDE GERİ GELDİ
+    # 🌟 ÇÖZÜM 2: KAYIP 7 GRAFİK 2'Lİ KOLONLAR HALİNDE GERİ GELDİ (DÜZELTİLDİ)
     fig1 = px.line(y=fin['cf'], x=["1. Yıl","2. Yıl","3. Yıl"], markers=True, color_discrete_sequence=['#60a5fa'])
     fig1.update_layout(title="1️⃣ UFCF (Serbest Nakit Akışı)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
     
@@ -516,7 +516,7 @@ if st.session_state.analiz_hazir:
     fig3 = go.Figure(data=go.Scatterpolar(r=fin['radar'], theta=['Kârlılık', 'Exit Çarpanı', 'İnovasyon', 'Elde Tutma'], fill='toself', marker=dict(color='#10b981')))
     fig3.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), title="3️⃣ Stratejik Radar", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
 
-    df_pie = pd.DataFrame({'Gider': ['Üretim', 'Pazarlama', 'Operasyon', 'Vergi'], 'Tutar': [fin['dm'], fin['paz'], st.session_state.op, fin['vergi']]})
+    df_pie = pd.DataFrame({'Gider': ['Üretim', 'Pazarlama', 'Operasyon', 'Vergi'], 'Tutar': [fin['dm'], fin['paz'], fin['op'], fin['vergi']]})
     df_pie = df_pie[df_pie['Tutar'] > 0] 
     fig4 = px.pie(df_pie, names='Gider', values='Tutar', hole=0.4, color_discrete_sequence=['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'])
     fig4.update_layout(title="4️⃣ OPEX (Gider) Dağılımı", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
