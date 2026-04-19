@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from groq import Groq
 import plotly.graph_objects as go 
 import plotly.express as px 
@@ -49,9 +50,7 @@ li[role="option"]:hover, li[role="option"][aria-selected="true"] { background-co
 .stTabs [data-baseweb="tab-list"] { background-color: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 5px; gap: 10px; }
 .stTabs [data-baseweb="tab"] { color: #94a3b8; font-weight: 700; border-radius: 8px; padding: 10px 20px; }
 .stTabs [aria-selected="true"] { background-color: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; }
-.print-btn { float: right; background: #38bdf8; color: #030712 !important; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; transition: 0.3s; margin-top: 10px;}
-.print-btn:hover { background: #0ea5e9; transform: scale(1.05); }
-@media print { .print-btn, [data-testid="stSidebar"], .stButton { display: none !important; } }
+@media print { [data-testid="stSidebar"], .stButton { display: none !important; } }
 </style> 
 """, unsafe_allow_html=True) 
 
@@ -90,7 +89,6 @@ BENCHMARKS = {
     'Default': {'ltv_cac': 3.0, 'moic': 3.5, 'rule40': 30, 'margin': 0.60}
 }
 
-# 🌟 ÇÖZÜM: DEVASA, YATIRIMCI KALİBRESİNDE (VC-GRADE) SENARYO METİNLERİ EKLENDİ 🌟
 def yukle_termos():
     st.session_state.update({
         'g_adi': 'EcoKupa v2', 'sek': 'IoT Donanım', 'cap': 3500000, 'maliyet': 850, 'satis': 1499, 'adet': 8500, 'faiz': 45, 'sub_price': 49, 'sub_rate': 15, 'paz_orani': 20, 'op_orani': 15, 'pazar_hacmi': 2.5, 'churn': 5.0, 'vergi': 25, 'enflasyon': 35, 'kurucu_profili': 'Standart Kurucu', 
@@ -119,7 +117,7 @@ def senaryo_tetikle():
     elif secim == "🚁 AgriFly Drone (AgriTech)": yukle_drone()
 
 # ==========================================
-# 4. FİNANS MATEMATİĞİ (V12 MOTOR - DOKUNULMADI)
+# 4. FİNANS MATEMATİĞİ (V12 MOTOR)
 # ==========================================
 @st.cache_data(show_spinner=False)
 def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_orani, enflasyon_orani, pazar_hacmi, kurucu_profili, sektor):
@@ -336,7 +334,7 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
     }
 
 # ==========================================
-# 5. ASKERİ YAPAY ZEKA OTONOM KARAR MOTORU (DOKUNULMADI)
+# 5. ASKERİ YAPAY ZEKA OTONOM KARAR MOTORU 
 # ==========================================
 def safe_ai_call(messages, retries=3):
     for i in range(retries):
@@ -431,10 +429,13 @@ with st.sidebar:
 # ==========================================
 # 7. ANA EKRAN, HİYERARŞİ 
 # ==========================================
-st.markdown("""
-    <a href="javascript:window.print()" class="print-btn">🖨️ Raporu PDF Kaydet</a>
-    <div class="web-header">QUANTUM AI | DECISION INTELLIGENCE</div>
-""", unsafe_allow_html=True)
+col_title, col_btn = st.columns([4, 1])
+with col_title:
+    st.markdown('<div class="web-header">QUANTUM AI | DECISION INTELLIGENCE</div>', unsafe_allow_html=True)
+with col_btn:
+    st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+    if st.button("🖨️ Raporu PDF Kaydet", use_container_width=True):
+        components.html("<script>window.parent.print();</script>", height=0)
 
 t1, t2 = st.tabs(["🎯 Pazar Problemi", "🛡️ Stratejik Çözüm"])
 with t1: st.text_area("Pazar Analizi", key="kutu1", height=250, label_visibility="collapsed")
