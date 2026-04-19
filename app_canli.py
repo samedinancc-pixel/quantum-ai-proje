@@ -7,14 +7,14 @@ import numpy as np
 import os
 import html 
 import time
-from scipy.stats import skewnorm, t
+from scipy.stats import t
 
 # ==========================================
 # 1. MOTOR ATEŞLEME VE GÜVENLİ API BAĞLANTISI
 # ==========================================
 np.random.seed(2026) 
 
-st.set_page_config(page_title="QUANTUM AI | Kurumsal Değerleme", layout="wide", initial_sidebar_state="expanded") 
+st.set_page_config(page_title="QUANTUM AI | Decision Intelligence", layout="wide", initial_sidebar_state="expanded") 
 
 try:
     api_key = st.secrets["GROQ_API_KEY"]
@@ -24,100 +24,65 @@ except Exception as e:
     st.stop()
 
 # ==========================================
-# 2. 2026 MODERN TASARIM (BEYAZ MENÜ KESİN ÇÖZÜM)
+# 2. 2026 MODERN TASARIM VE HİYERARŞİ 
 # ==========================================
 st.markdown(""" 
 <style> 
 .stApp {background-color: #030712; color: #f8fafc; font-family: 'Inter', sans-serif;}
-
-/* SİDEBAR TASARIMI */
-[data-testid="stSidebar"] {
-    background-color: #050b14 !important; 
-    border-right: 1px solid rgba(56, 189, 248, 0.1);
-}
+[data-testid="stSidebar"] { background-color: #050b14 !important; border-right: 1px solid rgba(56, 189, 248, 0.1); }
 [data-testid="stSidebar"] img { margin-bottom: 30px !important; }
-
-/* YAZI VE BAŞLIKLAR */
-p, li, div[data-testid="stMarkdownContainer"] > p { font-size: 1.08rem !important; line-height: 1.8 !important; color: #e2e8f0 !important; }
+p, li, div[data-testid="stMarkdownContainer"] > p { font-size: 1.05rem !important; line-height: 1.7 !important; color: #e2e8f0 !important; }
 h1, h2, h3, h4 { margin-top: 1rem; margin-bottom: 0.8rem; font-weight: 800 !important; color: #f8fafc !important;}
 h2 { font-size: 1.8rem !important; color: #38bdf8 !important; text-shadow: 0px 2px 15px rgba(56, 189, 248, 0.2); border-bottom: none !important;}
-h3 { font-size: 1.4rem !important; color: #7dd3fc !important; }
-
-/* BEYAZ MENÜ SORUNUNU KÖKÜNDEN ÇÖZEN NÜKLEER CSS */
-div[data-baseweb="select"] > div, div[data-baseweb="popover"] > div {
-    background-color: #0f172a !important; color: #f8fafc !important; border: 1px solid #38bdf8 !important;
-}
-span[data-baseweb="select"] { color: #f8fafc !important; }
-ul[role="listbox"] { background-color: #0f172a !important; }
-li[role="option"] { color: #f8fafc !important; background-color: #0f172a !important; font-weight: 600 !important; font-size: 1.1rem !important;}
+div[data-baseweb="select"] > div, div[data-baseweb="popover"] > div { background-color: #0f172a !important; color: #f8fafc !important; border: 1px solid #38bdf8 !important; }
+ul[role="listbox"], li[role="option"] { background-color: #0f172a !important; color: #f8fafc !important; }
 li[role="option"]:hover, li[role="option"][aria-selected="true"] { background-color: #38bdf8 !important; color: #030712 !important; }
-
-/* INPUT KUTULARI (GLOW EFEKTİ) */
-.stTextInput>div>div>input, .stNumberInput>div>div>input {
-    background-color: rgba(15, 23, 42, 0.8) !important; color: #38bdf8 !important;
-    border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 10px !important; font-weight: 700 !important;
-}
-.stTextInput>div>div>input:focus, .stNumberInput>div>div>input:focus { border: 1px solid #38bdf8 !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important; }
-[data-testid="stSidebar"] label p { font-size: 1.05rem !important; font-weight: 700 !important; color: #cbd5e1 !important; }
-
-/* ANA BAŞLIK VE METRİK KARTLARI */
-.web-header {
-    font-size: 3.2rem; font-weight: 900; text-align: center; letter-spacing: -1px; margin-bottom: 40px; 
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 10px 30px rgba(79, 172, 254, 0.15);
-} 
-.metric-card {
-    background: rgba(15, 23, 42, 0.6); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; backdrop-filter: blur(12px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-.metric-value {font-size: 2.6rem; font-weight: 900; color: #ffffff; margin-top: 10px;}
-.metric-title {font-size: 1rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;}
-
-/* YENİ NESİL BUTON */
-.stButton>button {
-    background: linear-gradient(135deg, #2563eb, #3b82f6) !important; color: white !important; font-weight: 900; border-radius: 14px; height: 3.8em; font-size: 20px; width: 100%; border: none !important; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); transition: all 0.3s ease;
-}
-.stButton>button:hover { box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5); transform: scale(1.02); }
-
-/* RAPOR KUTULARI VE SEKMELER */
-.report-section { background: rgba(15, 23, 42, 0.4); padding: 40px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.1); margin-bottom: 30px; }
+.stTextInput>div>div>input, .stNumberInput>div>div>input { background-color: rgba(15, 23, 42, 0.8) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; font-weight: 700 !important; }
+.web-header { font-size: 3rem; font-weight: 900; text-align: center; letter-spacing: -1px; margin-bottom: 20px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
+.metric-card { background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3); }
+.metric-value {font-size: 2.2rem; font-weight: 900; color: #ffffff; margin-top: 5px;}
+.metric-title {font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;}
+.score-banner { background: linear-gradient(90deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%); padding: 30px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 2px solid; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+.score-number { font-size: 4rem; font-weight: 900; line-height: 1; margin: 0; }
+.stButton>button { background: linear-gradient(135deg, #2563eb, #3b82f6) !important; color: white !important; font-weight: 900; border-radius: 12px; height: 3.5em; font-size: 18px; width: 100%; border: none !important; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); transition: all 0.3s ease; }
+.stButton>button:hover { transform: scale(1.02); }
 .stTabs [data-baseweb="tab-list"] { background-color: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 5px; gap: 10px; }
 .stTabs [data-baseweb="tab"] { color: #94a3b8; font-weight: 700; border-radius: 8px; padding: 10px 20px; }
 .stTabs [aria-selected="true"] { background-color: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; }
 </style> 
 """, unsafe_allow_html=True) 
 
-szlk_html = """
-<div style="background: rgba(30, 41, 59, 0.5); border-left: 4px solid #f59e0b; padding: 30px; margin-top: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
-    <h3 style="color: #fbbf24; margin-top:0;">📖 YATIRIMCI SÖZLÜĞÜ VE KAVRAMLAR</h3>
-    <p>• <b style="color:#ffffff;">NPV:</b> Gelecekteki nakit akışlarının risk ve faiz düşülerek hesaplanmış bugünkü net değeridir.<br>
-    • <b style="color:#ffffff;">MOIC (Mutiple on Invested Capital):</b> Yatırılan sermayenin kaç katı geri dönüş sağlandığını gösterir (Gerçek VC Standardı).<br>
-    • <b style="color:#ffffff;">Discounted LTV / CAC:</b> Bir müşterinin bıraktığı ömür boyu kârın, WACC ve Churn'e indirgenmiş, onu elde etme maliyetine oranıdır.<br>
-    • <b style="color:#ffffff;">Başabaş (Break-Even):</b> Yatırımcının koyduğu paranın tamamen geri dönüp şirketin net kâra geçtiği aydır.</p>
-</div>
-"""
-
-def html_temizle(metin): return metin.replace('**', '<b>').replace('###', '<h2>').replace('\n', '<br>')
-
 # ==========================================
-# 3. KUSURSUZ HAFIZA VE SENARYOLAR
+# 3. KUSURSUZ HAFIZA, SENARYOLAR VE PORTFÖY
 # ==========================================
+if 'portfolio' not in st.session_state:
+    st.session_state.portfolio = [] # Multi-Scenario Karşılaştırma Hafızası
+
 if 'g_adi' not in st.session_state:
     st.session_state.update({
-        'g_adi': '', 'sek': '', 'cap': 0, 'maliyet': 0, 'satis': 0, 'adet': 0, 'faiz': 0, 
+        'g_adi': '', 'sek': 'B2B Finansal Teknoloji', 'cap': 0, 'maliyet': 0, 'satis': 0, 'adet': 0, 'faiz': 0, 
         'sub_price': 0, 'sub_rate': 0, 'paz_orani': 5, 'op_orani': 5, 'pazar_hacmi': 0.0, 'churn': 0.0,
         'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Standart Kurucu',
-        'kutu1': '', 'kutu2': '', 'analiz_hazir': False, 'op': 0,
-        'fin': {'radar': [0,0,0,0], 'dm': 0, 'paz': 0, 'op': 0, 'vergi': 0, 'npv': 0, 'basabas': 0, 'runway': 0, 'ltv_cac': 0, 'cf': [0,0,0], 'ciro': 0, 'moic': 0, 'karar': '', 'renk': '', 'prob_fail': 0, 'mc_npv': [], 'sens_data': {}},
-        'sen_sec_box': 'Seçiniz...'
+        'kutu1': 'Detaylı analiz için sol menüden bir senaryo yükleyin.', 
+        'kutu2': 'Stratejik çözümünüzü (Actionable Intelligence vb.) buraya girin.', 
+        'analiz_hazir': False,
+        'fin': {}, 'sen_sec_box': 'Seçiniz...'
     })
 
+# BENCHMARK SÖZLÜĞÜ (SEKTÖREL REFERANSLAR)
+BENCHMARKS = {
+    'B2B Finansal Teknoloji': {'ltv_cac': 4.0, 'moic': 4.5, 'rule40': 40, 'margin': 0.80},
+    'IoT Donanım': {'ltv_cac': 2.5, 'moic': 3.0, 'rule40': 25, 'margin': 0.40},
+    'AgriTech / Drone': {'ltv_cac': 3.0, 'moic': 3.5, 'rule40': 30, 'margin': 0.55},
+    'Default': {'ltv_cac': 3.0, 'moic': 3.5, 'rule40': 30, 'margin': 0.60}
+}
+
 def yukle_termos():
-    st.session_state.update({'g_adi': 'EcoKupa v2', 'sek': 'IoT Donanım', 'cap': 3500000, 'maliyet': 850, 'satis': 1499, 'adet': 8500, 'faiz': 45, 'sub_price': 49, 'sub_rate': 15, 'paz_orani': 20, 'op_orani': 15, 'pazar_hacmi': 2.5, 'churn': 5.0, 'vergi': 25, 'enflasyon': 35, 'kurucu_profili': 'Standart Kurucu', 'kutu1': 'Global termos pazarı inovasyondan uzaklaşmış durumdadır.', 'kutu2': 'EcoKupa v2, otonom takip eden yıkıcı bir IoT ekosistemidir.', 'analiz_hazir': False})
-
+    st.session_state.update({'g_adi': 'EcoKupa v2', 'sek': 'IoT Donanım', 'cap': 3500000, 'maliyet': 850, 'satis': 1499, 'adet': 8500, 'faiz': 45, 'sub_price': 49, 'sub_rate': 15, 'paz_orani': 20, 'op_orani': 15, 'pazar_hacmi': 2.5, 'churn': 5.0, 'vergi': 25, 'enflasyon': 35, 'kurucu_profili': 'Standart Kurucu', 'kutu1': 'Pazar inovasyondan uzak.', 'kutu2': 'Aktif IoT ekosistemi.', 'analiz_hazir': False})
 def yukle_saas():
-    st.session_state.update({'g_adi': 'QuantumAI Enterprise', 'sek': 'B2B Finansal Teknoloji', 'cap': 4500000, 'maliyet': 0, 'satis': 4500, 'adet': 2500, 'faiz': 40, 'sub_price': 299, 'sub_rate': 35, 'paz_orani': 30, 'op_orani': 25, 'pazar_hacmi': 14.8, 'churn': 4.5, 'vergi': 25, 'enflasyon': 40, 'kurucu_profili': 'Tier-1 (Kriz Yöneticisi)', 'kutu1': 'Girişimcilik ekosisteminin en acımasız gerçeği, kurulan her on yeni girişimin dokuzunun "Ölüm Vadisi" krizleri yüzünden batmasıdır.', 'kutu2': 'Quantum AI, Python mimarisi üzerine inşa edilmiş otonom bir "Finansal Zeka ve İş Modeli" motorudur.', 'analiz_hazir': False})
-
+    st.session_state.update({'g_adi': 'QuantumAI Enterprise', 'sek': 'B2B Finansal Teknoloji', 'cap': 4500000, 'maliyet': 0, 'satis': 4500, 'adet': 2500, 'faiz': 40, 'sub_price': 299, 'sub_rate': 35, 'paz_orani': 30, 'op_orani': 25, 'pazar_hacmi': 14.8, 'churn': 4.5, 'vergi': 25, 'enflasyon': 40, 'kurucu_profili': 'Tier-1 (Kriz Yöneticisi)', 'kutu1': 'Girişimlerin %90\'ı batıyor.', 'kutu2': 'Otonom Karar Destek Motoru.', 'analiz_hazir': False})
 def yukle_drone():
-    st.session_state.update({'g_adi': 'AgriFly - Otonom Tarım', 'sek': 'AgriTech / Drone', 'cap': 2800000, 'maliyet': 45000, 'satis': 125000, 'adet': 150, 'faiz': 35, 'sub_price': 1500, 'sub_rate': 65, 'paz_orani': 15, 'op_orani': 20, 'pazar_hacmi': 4.2, 'churn': 3.5, 'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Çaylak (Yüksek Varyans)', 'kutu1': 'Geleneksel tarımda çiftçiler tarlanın tamamına manuel olarak kimyasal püskürtmektedir.', 'kutu2': 'AgriFly, hastalıklı bölgeleri tespit eder ve nokta atışı ilaçlama yapar.', 'analiz_hazir': False})
+    st.session_state.update({'g_adi': 'AgriFly - Otonom Tarım', 'sek': 'AgriTech / Drone', 'cap': 2800000, 'maliyet': 45000, 'satis': 125000, 'adet': 150, 'faiz': 35, 'sub_price': 1500, 'sub_rate': 65, 'paz_orani': 15, 'op_orani': 20, 'pazar_hacmi': 4.2, 'churn': 3.5, 'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Çaylak (Yüksek Varyans)', 'kutu1': 'Manuel ilaçlama zehirliyor.', 'kutu2': 'Otonom tespit ve ilaçlama.', 'analiz_hazir': False})
 
 def senaryo_tetikle():
     secim = st.session_state.sen_sec_box
@@ -126,126 +91,149 @@ def senaryo_tetikle():
     elif secim == "🚁 AgriFly Drone (AgriTech)": yukle_drone()
 
 # ==========================================
-# 4. FİNANS MATEMATİĞİ (ULTIMATE QUANT-GRADE ENGINE)
+# 4. FİNANS MATEMATİĞİ (ULTIMATE DECISION ENGINE)
 # ==========================================
 @st.cache_data(show_spinner=False)
-def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_orani, enflasyon_orani, pazar_hacmi, kurucu_profili):
-    burn_mult, cac_penalty = (1.0, 1.0) if "Tier-1" in kurucu_profili else ((1.8, 1.5) if "Çaylak" in kurucu_profili else (1.3, 1.2))
+def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_orani, enflasyon_orani, pazar_hacmi, kurucu_profili, sektor):
+    USD_TRY_RATE = 35.0
+    TAM_TO_SAM_RATIO = 0.35 
+    SMB_RATIO, ENT_RATIO = 0.85, 0.15
+    NRR_SMB, NRR_ENT = 1.01, 1.08 
+    
+    pmf_multiplier, cac_decay_rate = (1.2, 0.95) if "Tier-1" in kurucu_profili else ((0.8, 1.05) if "Çaylak" in kurucu_profili else (1.0, 0.98))
+    burn_mult = 1.0 / pmf_multiplier
 
-    def run_cycle(macro_shock=1.0, is_mc=False, v_churn=churn, v_paz=paz_o, v_sub=sub_p):
-        # 1. KORELASYON DÜZELTMESİ: Makro şok, hem talebi (satış) hem maliyeti (enflasyon/CAC) birbirine bağlı etkiler
-        macro_shock = np.clip(macro_shock, 0.3, 1.4) 
-        demand_shock = macro_shock
-        cost_shock = 1.0 + (1.0 - macro_shock) * 0.5 # Kötü senaryoda maliyet artar
-        
+    def run_cycle(demand_shock=1.0, cost_shock=1.0, churn_shock=1.0, is_mc=False, v_churn=churn, v_paz=paz_o, v_sub=sub_p):
         wacc_m = (max(0.15, (faiz/100) + 0.12 + (enflasyon_orani/100)*0.5)) / 12 
-        und_cfs, dis_cfs, cohorts, ebitdas, revs = [], [], [], [], []
+        und_cfs, dis_cfs, ebitdas, revs = [], [], [], []
         
-        tam_tl = pazar_hacmi * 32.5 * 1e9
-        max_users = (tam_tl / max(v_sub, 1)) * 0.02 
+        tam_tl = pazar_hacmi * USD_TRY_RATE * 1e9
+        sam_tl = tam_tl * TAM_TO_SAM_RATIO
+        penetration_limit = np.clip(0.05 * pmf_multiplier / (max(v_sub, 10) / 100), 0.001, 0.15)
+        max_som_users = (sam_tl / max(v_sub * 12, s, 1)) * penetration_limit 
 
         y1_ciro, y1_dm, y1_paz, y1_op, y1_vergi = 0, 0, 0, 0, 0
         y1_cf, y2_cf, y3_cf = 0, 0, 0
+        y2_rev, y3_rev, y3_ebitda = 0, 0, 0
         
-        base_cac = max(v_sub * 4, 150) * cac_penalty
-        b2b_sales_friction = 1200 
-        sales_cycle_delay = 4 
+        base_saas_cac = max(v_sub * 3, 50)
+        base_hw_cac = max(s * 0.05, 50)
+        base_cac = ((base_saas_cac * (sub_r/100)) + (base_hw_cac * (1 - sub_r/100))) / pmf_multiplier
+
+        sales_cycle_delay = 3 
         revenue_delay = 1 
         pending_users = [0] * 65 
 
-        base_churn = max(v_churn/100, 0.005)
+        base_churn_smb = max(v_churn/100, 0.005) * churn_shock
+        base_churn_ent = base_churn_smb * 0.4 
+
+        cohorts_smb, cohorts_ent = [], []
+        prev_nwc = 0 # Net Working Capital tracking
 
         for month in range(1, 61):
-            # 4. KUR RİSKİ (FX Risk): Enflasyona dayalı kur şoku (Purchasing Power Parity)
             fx_factor = (1 + (enflasyon_orani * 0.85) / 100 / 12) ** month
             inf_factor = (1 + enflasyon_orani / 100 / 12) ** month
 
+            t0 = 24 
+            k = 0.15 
+            diffusion_multiplier = 1.0 / (1.0 + np.exp(-k * (month - t0))) 
+            
             mkt = (b * v_paz/100) / 12
             
-            # 2. RETENTION CURVE: Sabit churn yerine Power-law zamanla yavaşlayan müşteri kaybı
             cur_active_users = 0
-            for c in cohorts:
-                if month > c[0] + revenue_delay:
-                    age = month - c[0] - revenue_delay
-                    retention = (1 - base_churn) ** (age ** 0.85)
-                    cur_active_users += c[1] * retention
+            for c in cohorts_smb:
+                if month > c[0] + revenue_delay: cur_active_users += c[1] * ((1 - base_churn_smb) ** (month - c[0] - revenue_delay))
+            for c in cohorts_ent:
+                if month > c[0] + revenue_delay: cur_active_users += c[1] * ((1 - base_churn_ent) ** (month - c[0] - revenue_delay))
 
-            saturation = cur_active_users / max(max_users, 1)
+            saturation = cur_active_users / max(max_som_users, 1)
+            current_cac = base_cac * (cac_decay_rate ** (month/12)) * (1 + (saturation ** 2) * 4) * cost_shock * inf_factor
+            current_cac = current_cac * (1.5 - (diffusion_multiplier * 0.5)) 
             
-            # CAC enflasyon ve makro maliyet şokundan korele etkilenir
-            current_cac = base_cac * (1 + (saturation * 5)) * inf_factor * cost_shock
-            
-            raw_new_users = (mkt / current_cac) * (sub_r/100) * demand_shock
-            if month + sales_cycle_delay < 65:
-                pending_users[month + sales_cycle_delay] += raw_new_users 
+            raw_new_users = (mkt / current_cac) * demand_shock * (0.5 + diffusion_multiplier)
+            if month + sales_cycle_delay < 65: pending_users[month + sales_cycle_delay] += raw_new_users 
                 
-            active_new_users = pending_users[month]
+            active_new_users = pending_users[month] * (sub_r/100)
             if active_new_users > 0:
-                cohorts.append([month, active_new_users])
+                cohorts_smb.append([month, active_new_users * SMB_RATIO]) 
+                cohorts_ent.append([month, active_new_users * ENT_RATIO]) 
 
-            price_decay = 1 - (saturation * 0.3)
-            effective_price = v_sub * max(0.5, price_decay) * (0.8 if demand_shock < 0.9 else 1.0)
+            price_decay = 1 - (saturation * 0.2)
+            effective_price = v_sub * max(0.6, price_decay) * (0.9 if demand_shock < 0.9 else 1.0)
 
-            # Revenue Recognition with Retention Curve
             m_saas = 0
-            for c in cohorts:
+            for c in cohorts_smb:
                 if month > c[0] + revenue_delay:
                     age = month - c[0] - revenue_delay
-                    retention = (1 - base_churn) ** (age ** 0.85)
-                    m_saas += c[1] * retention * effective_price
+                    m_saas += c[1] * ((1 - base_churn_smb) ** age) * effective_price * (NRR_SMB ** (age / 12))
+            for c in cohorts_ent:
+                if month > c[0] + revenue_delay:
+                    age = month - c[0] - revenue_delay
+                    m_saas += c[1] * ((1 - base_churn_ent) ** age) * effective_price * (NRR_ENT ** (age / 12))
 
-            hw_rev = (a/12)*s*demand_shock if month > 6 else 0 
+            hw_sales = (a/12) * demand_shock if month > 6 else 0
+            hw_rev = hw_sales * s
             rev = m_saas + hw_rev
             revs.append(rev)
 
-            # Giderler: Donanım kur riskine direkt maruz kalır
-            hw_cost = ((a/12)*m if month > 4 else (a/12)*m*2) * fx_factor * cost_shock
+            hw_cost = hw_sales * m * fx_factor * cost_shock
             base_opex = (b * op_o/100)/12
+            step_opex = np.floor(cur_active_users / 1500) * (b * 0.05) / 12 
+            saas_cogs = (cur_active_users/100) * (effective_price * 0.10) 
             
-            # 3. STEP-FUNCTION OPEX: Operasyon maliyetleri basamaklı (Step) artar, lineer değil!
-            step_opex = np.floor(cur_active_users / 2000) * (b * 0.08) / 12 # Her 2000 kullanıcıda devasa sunucu/ekip maliyeti zıplaması
-            scale_opex = (cur_active_users/100) * (effective_price * 0.05) + step_opex
-            
-            sales_cost = active_new_users * b2b_sales_friction * inf_factor
-            opex = (base_opex + scale_opex + sales_cost) * burn_mult * ((fx_factor + inf_factor)/2)
+            opex = (base_opex + step_opex + saas_cogs) * burn_mult * ((fx_factor + inf_factor)/2)
 
             ebitda = rev - (hw_cost + mkt + opex)
-            tax = ebitda * (vergi_orani/100) if ebitda > 0 else 0
             
-            if month <= 18 and ebitda < 0: ebitda *= 1.4 
+            depreciation = b / 60 
+            ebit = ebitda - depreciation
+            tax = ebit * (vergi_orani/100) if ebit > 0 else 0
             
+            # 🌟 YENİ: BALANCE SHEET / WORKING CAPITAL EKLENDİ (Gerçek Nakit Akışı)
+            receivables = rev * (30/360) # 30 gün alacak
+            payables = (hw_cost + opex) * (45/360) # 45 gün borç ödeme
+            current_nwc = receivables - payables
+            delta_nwc = current_nwc - prev_nwc
+            prev_nwc = current_nwc
+            
+            if month <= 18 and ebitda < 0: ebitda *= 1.2 
             ebitdas.append(ebitda)
-            net_cf = ebitda - tax
+            
+            # Unlevered Free Cash Flow (UFCF)
+            net_cf = ebitda - tax - delta_nwc 
             und_cfs.append(net_cf)
             dis_cfs.append(net_cf / (1 + wacc_m)**month)
 
             if month <= 12:
                 y1_ciro += rev; y1_dm += hw_cost; y1_paz += mkt; y1_op += opex; y1_vergi += tax; y1_cf += net_cf
-            elif month <= 24:
-                y2_cf += net_cf
-            elif month <= 36:
-                y3_cf += net_cf
+            elif month <= 24: y2_cf += net_cf; y2_rev += rev
+            elif month <= 36: y3_cf += net_cf; y3_rev += rev; y3_ebitda += ebitda
 
-        # 5. EXIT MULTIPLE FALLBACK (Zarar Eden Growth Start-up Kurtarması)
-        exit_multiple = np.random.uniform(2.5, 5.0) if not is_mc else (np.random.uniform(1.0, 3.0) if demand_shock < 0.8 else np.random.uniform(2.0, 4.5))
-        last_year_ebitda = np.mean(ebitdas[-12:]) * 12 
-        last_year_rev = sum(revs[-12:])
+        growth_rate = ((y3_rev - y2_rev) / max(y2_rev, 1)) * 100
+        ebitda_margin = (y3_ebitda / max(y3_rev, 1)) * 100
+        rule_of_40 = growth_rate + ebitda_margin
         
-        if last_year_ebitda > 0:
-            exit_val = last_year_ebitda * exit_multiple # Kârdaysa EBITDA çarpanı
-        else:
-            exit_val = last_year_rev * (exit_multiple * 0.4) # Zarardaysa Büyüme (Ciro) çarpanı
-            
+        last_year_ebitda = np.sum(ebitdas[-12:])
+        last_year_rev = np.sum(revs[-12:])
+        
+        if rule_of_40 >= 40 and last_year_ebitda > 0:
+            base_mult = np.clip(6.0 + (rule_of_40 - 40) * 0.1, 6.0, 12.0)
+            exit_val = last_year_ebitda * base_mult * (demand_shock if is_mc else 1.0)
+        elif rule_of_40 >= 20 and last_year_rev > 0:
+            base_mult = np.clip(3.0 + (growth_rate * 0.05), 2.0, 6.0)
+            exit_val = last_year_rev * base_mult * (demand_shock if is_mc else 1.0)
+        else: exit_val = last_year_rev * 0.5
+
+        exit_multiple = exit_val / max(last_year_ebitda, last_year_rev, 1)    
         npv = sum(dis_cfs) + (exit_val / (1 + wacc_m)**60) - b
         
-        # VC-Grade Discounted LTV (WACC dahil edilmiş)
-        avg_prices = [v_sub * max(0.5, (1 - (min(1, (i/60)) * 0.3))) for i in range(1, 61)]
-        lifecycle_arpu = np.mean(avg_prices)
-        gross_margin = 0.85 
-        monthly_margin = lifecycle_arpu * gross_margin
-        ltv = monthly_margin / (base_churn + wacc_m) 
+        saas_gross_margin = 0.85 
+        avg_monthly_arpu = v_sub * saas_gross_margin
+        avg_nrr = (NRR_SMB * SMB_RATIO) + (NRR_ENT * ENT_RATIO)
+        net_churn = max(base_churn_smb - (avg_nrr - 1), 0.001)
+        ltv = avg_monthly_arpu / (net_churn + wacc_m) 
         
-        avg_cac = base_cac * 1.5 + b2b_sales_friction
+        avg_cac = base_cac * 1.5 
         ltv_cac = ltv / avg_cac if avg_cac > 0 else 0
 
         cum_cf = -b
@@ -254,35 +242,60 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
             cum_cf += cf
             if cum_cf >= 0 and basabas == 999: basabas = i + 1
         
-        negative_months = [c for c in und_cfs if c < 0]
-        peak_burn = abs(min(negative_months)) if negative_months else 0
-        runway = int(b / peak_burn) if peak_burn > 0 else 999
+        negative_cfs = [abs(c) for c in und_cfs if c < 0]
+        avg_burn = np.mean(negative_cfs) if negative_cfs else 0
+        runway = int(b / avg_burn) if avg_burn > 0 else 999
 
         return {
             "npv": npv, "cf1": y1_cf, "cf2": y2_cf, "cf3": y3_cf,
             "ciro": y1_ciro, "dm": y1_dm, "paz": y1_paz, "op": y1_op, "vergi": y1_vergi,
             "ltv_cac": ltv_cac, "runway": runway, "basabas": basabas, "exit_mult": exit_multiple,
-            "total_return": sum(und_cfs) + exit_val
+            "total_return": sum(und_cfs) + exit_val, "rule_of_40": rule_of_40
         }
 
-    base = run_cycle(1.0, is_mc=False)
+    base = run_cycle(1.0, 1.0, 1.0, is_mc=False)
     mc_npvs = []
+    
+    # 🌟 YENİ: RİSK DECOMPOSITION (Neden batıyoruz?)
+    risk_breakdown = {"Talep/Pazar Eksikliği": 0, "Maliyet/Operasyon Çöküşü": 0, "Churn/Müşteri Kaybı": 0}
 
     for _ in range(1000): 
-        # Base shock yaratılır, run_cycle içindeki korelasyon fonksiyonuna yollanır
-        base_shock = t.rvs(df=4) * 0.2 + 1.0 if 't' in globals() else np.random.normal(1.0, 0.2)
-        if np.random.rand() < 0.03: base_shock *= 0.4 
-        res = run_cycle(base_shock, is_mc=True)
+        d_shock = max(0.1, t.rvs(df=5) * 0.15 + 1.0)
+        c_shock = max(0.1, np.random.normal(1.0, 0.1))
+        ch_shock = max(0.1, np.random.normal(1.0, 0.1))
+        
+        if np.random.rand() < 0.02: 
+            d_shock *= 0.5; c_shock *= 1.5
+            
+        res = run_cycle(demand_shock=d_shock, cost_shock=c_shock, churn_shock=ch_shock, is_mc=True)
         mc_npvs.append(res['npv'])
+        
+        if res['npv'] < 0:
+            # En büyük şoku tespit et
+            shocks = {"Talep/Pazar Eksikliği": 1 - d_shock, "Maliyet/Operasyon Çöküşü": c_shock - 1, "Churn/Müşteri Kaybı": ch_shock - 1}
+            worst_reason = max(shocks, key=shocks.get)
+            risk_breakdown[worst_reason] += 1
 
     prob_fail = (np.sum(np.array(mc_npvs) < 0) / 1000) * 100
-    
     moic = base['total_return'] / b if b > 0 else 0
 
-    # TORNADO SENSITIVITY KISMI (Makro Duyarlılık)
-    sens_churn = run_cycle(1.0, is_mc=False, v_churn=churn*1.2)['npv']
-    sens_paz = run_cycle(1.0, is_mc=False, v_paz=paz_o*0.8)['npv']
-    sens_sub = run_cycle(1.0, is_mc=False, v_sub=sub_p*0.8)['npv']
+    # 🌟 YENİ: SINGLE INVESTMENT SCORE & BENCHMARKING
+    bm = BENCHMARKS.get(sektor, BENCHMARKS['Default'])
+    
+    score_moic = min(100, (moic / bm['moic']) * 100) * 0.35
+    score_risk = max(0, (100 - prob_fail)) * 0.25
+    score_ltvcac = min(100, (base['ltv_cac'] / bm['ltv_cac']) * 100) * 0.25
+    score_rule40 = min(100, (base['rule_of_40'] / bm['rule40']) * 100) * 0.15
+    
+    final_score = int(score_moic + score_risk + score_ltvcac + score_rule40)
+
+    if final_score >= 80: karar, renk = "GÜÇLÜ AL (STRONG INVEST)", "#10b981"
+    elif final_score >= 60: karar, renk = "İZLE / BÜYÜT (HOLD & MONITOR)", "#f59e0b"
+    else: karar, renk = "YATIRIM YAPILAMAZ (REJECT)", "#ef4444"
+
+    sens_churn = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_churn=churn*1.2)['npv']
+    sens_paz = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_paz=paz_o*0.8)['npv']
+    sens_sub = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_sub=sub_p*0.8)['npv']
     
     sens_data = {
         "Churn Oranı %20 Artarsa": ((sens_churn - base['npv']) / abs(base['npv'])) * 100 if base['npv']!=0 else 0,
@@ -290,47 +303,40 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
         "Abonelik Fiyatı %20 Düşerse": ((sens_sub - base['npv']) / abs(base['npv'])) * 100 if base['npv']!=0 else 0
     }
 
-    if moic >= 3.0 and base['basabas'] <= 36 and prob_fail < 45 and base['ltv_cac'] > 3.0:
-        karar, renk = "✅ GÜÇLÜ YATIRIM (INVEST)", "#10b981"
-    elif moic >= 1.5 and prob_fail < 65:
-        karar, renk = "⚠️ RİSKLİ BÜYÜME (HOLD / MONITOR)", "#f59e0b"
-    else:
-        karar, renk = "❌ YATIRIM YAPILAMAZ (REJECT)", "#ef4444"
-
     return {
         "npv": base['npv'], "moic": moic, "runway": base['runway'], "ltv_cac": base['ltv_cac'],
         "basabas": base['basabas'], "cf": [base['cf1'], base['cf2'], base['cf3']],
         "ciro": base['ciro'], "dm": base['dm'], "paz": base['paz'], "op": base['op'], "vergi": base['vergi'],
         "radar": [min(100, max(0, int(moic*20))), min(100, int(base['exit_mult']*20)), 90, max(0, int(100-churn*4))],
-        "karar": karar, "renk": renk, "prob_fail": prob_fail, "mc_npv": mc_npvs, "sens_data": sens_data
+        "karar": karar, "renk": renk, "prob_fail": prob_fail, "mc_npv": mc_npvs, "sens_data": sens_data,
+        "score": final_score, "risk_breakdown": risk_breakdown
     }
 
 # ==========================================
-# 5. GÜVENLİ YAPAY ZEKA ÇAĞRISI
+# 5. YAPAY ZEKA OTONOM KARAR MOTORU 
 # ==========================================
 def safe_ai_call(messages, retries=3):
     for i in range(retries):
         try:
-            completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=messages, temperature=0.55, timeout=20)
+            completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=messages, temperature=0.45, timeout=20)
             return completion.choices[0].message.content.strip()
         except Exception as e:
             if i == retries - 1: raise e
             time.sleep(2 ** i) 
 
-def ai_rapor_yaz(baslik, istek, veri, fin_data):
-    if baslik == "SWOT ANALİZİ":
-        sistem_prompt = "Sen dünyaca ünlü bir Stratejik İstihbarat (OSINT) ve Risk Yönetim uzmanısın. SWOT Analizini sıradan bir lise ödevi gibi değil; Yıkıcı İnovasyon, Regülatif Fırsatlar, Churn Regresyon Riskleri ve Makroekonomik Tehditler gibi ağır kurumsal alt başlıklarla incele."
-    elif baslik == "YÖNETİCİ ÖZETİ":
-        sistem_prompt = "Sen McKinsey seviyesinde bir Yönetici Ortaksın. Raporu sadece finansal metriklerle değil; projenin 'Ölüm Vadisi'ni nasıl aşacağını YORUMLA ve DESTANSI, vizyoner bir özet yaz."
+@st.cache_data(show_spinner=False)
+def ai_rapor_yaz(baslik, istek, veri, prob_fail, karar, score):
+    if baslik == "YÖNETİCİ ÖZETİ (AI KARAR MOTORU)":
+        sistem_prompt = "Sen McKinsey seviyesinde bir AI Karar Motorusun. Rakamları özetlemekle kalma; Kompozit Yatırım Skoruna göre girişimi kurtarmak veya büyütmek için veri odaklı 2 spesifik aksiyon öner."
     else:
-        sistem_prompt = "Sen Goldman Sachs seviyesinde kıdemli bir kurumsal stratejistsin. ASLA yüzeysel özetler verme. Rakamları vizyonla birleştir."
+        sistem_prompt = "Sen Goldman Sachs seviyesinde kıdemli bir kurumsal stratejistsin. ASLA yüzeysel özetler verme."
     
-    user_prompt = f"RAPOR KONUSU: {baslik}\nSİSTEM VERİLERİ: {veri}\nİflas Olasılığı: %{fin_data['prob_fail']}\nİSTENEN DERİN ANALİZ: {istek}"
+    user_prompt = f"RAPOR KONUSU: {baslik}\nSİSTEM VERİLERİ: {veri}\nYatırım Skoru: {score}/100\nİflas Olasılığı: %{prob_fail}\nİSTENEN: {istek}"
     
     try:
         return safe_ai_call([{"role": "system", "content": sistem_prompt}, {"role": "user", "content": user_prompt}])
     except Exception as e: 
-        return f"<b>⚡ Simülasyon Devrede:</b> API gecikmesi nedeniyle rapor otonom oluşturuldu.<br><b>{baslik}:</b> Algoritmik Karar: <b>{fin_data['karar']}</b>. İflas Olasılığı: %{fin_data['prob_fail']:.1f}."
+        return f"<b>⚡ Otonom Güvenlik Devrede:</b> API gecikmesi nedeniyle rapor kurallı motorla oluşturuldu."
 
 # ==========================================
 # 6. SİDEBAR BÖLÜMÜ
@@ -340,13 +346,9 @@ with st.sidebar:
     elif os.path.exists("quantum logo.jpg"): st.image("quantum logo.jpg", use_container_width=True)
     
     st.markdown("---")
-    with st.expander("👥 Ekibimiz", expanded=False):
-        st.markdown("<div style='font-size: 0.90rem; color: #cbd5e1; line-height: 1.6; text-align: justify;'><b style='color: #60a5fa;'>Zeynep İNANÇ | Operasyon ve Proje Yöneticisi</b><br><b style='color: #60a5fa;'>Zeren İNANÇ | Sistem Entegrasyon Yöneticisi</b><br><b style='color: #60a5fa;'>Begüm AKPINAR | Finansal Strateji Uzmanı</b></div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
     st.header("📚 Örnek Senaryolar")
-    st.selectbox("Yüklenecek Senaryoyu Seçin:", ["Seçiniz...", "☕ IoT Termos (Donanım)", "🤖 QuantumAI SaaS (Yazılım)", "🚁 AgriFly Drone (AgriTech)"], key="sen_sec_box", label_visibility="collapsed")
-    st.button("📥 Seçili Senaryoyu Yükle", on_click=senaryo_tetikle, use_container_width=True)
+    st.selectbox("Senaryo Yükle:", ["Seçiniz...", "☕ IoT Termos (Donanım)", "🤖 QuantumAI SaaS (Yazılım)", "🚁 AgriFly Drone (AgriTech)"], key="sen_sec_box", label_visibility="collapsed")
+    st.button("📥 Senaryoyu Yükle", on_click=senaryo_tetikle, use_container_width=True)
     
     st.markdown("---")
     st.header("🧠 Kurucu Agent (Behavioral)")
@@ -355,7 +357,7 @@ with st.sidebar:
     st.markdown("---")
     st.header("⚙️ Temel Parametreler")
     st.text_input("Girişim Adı", key="g_adi")
-    st.text_input("Sektör", key="sek")
+    st.selectbox("Sektör (Benchmark için kritik)", ["B2B Finansal Teknoloji", "IoT Donanım", "AgriTech / Drone", "Diğer"], key="sek")
     st.number_input("TAM (Pazar Hacmi - Milyar $)", key="pazar_hacmi", step=0.1)
     st.number_input("CAPEX (Sermaye) ₺", key="cap")
     st.number_input("Birim Maliyet ₺", key="maliyet")
@@ -377,104 +379,103 @@ with st.sidebar:
     st.slider("Aylık Churn (Kayıp) Oranı (%)", 0.0, 20.0, key="churn", step=0.1)
 
 # ==========================================
-# 7. ANA EKRAN VE STRATEJİK ANALİZ
+# 7. ANA EKRAN, HİYERARŞİ VE PORTFÖY
 # ==========================================
-st.markdown('<div class="web-header">QUANTUM AI | STRATEJİK DEĞERLEME MOTORU</div>', unsafe_allow_html=True)
+st.markdown('<div class="web-header">QUANTUM AI | DECISION INTELLIGENCE</div>', unsafe_allow_html=True)
 
 t1, t2 = st.tabs(["🎯 Pazar Problemi", "🛡️ Stratejik Çözüm"])
 with t1: st.text_area("Pazar Analizi", key="kutu1", height=200, label_visibility="collapsed")
 with t2: st.text_area("Çözüm", key="kutu2", height=200, label_visibility="collapsed")
 st.markdown("<br>", unsafe_allow_html=True)
 
-if st.button("🚀 STRATEJİK ANALİZİ BAŞLAT"):
-    fin = finans_motoru(st.session_state.cap, st.session_state.maliyet, st.session_state.satis, st.session_state.adet, st.session_state.faiz, st.session_state.sub_price, st.session_state.sub_rate, st.session_state.paz_orani, st.session_state.op_orani, st.session_state.churn, st.session_state.vergi, st.session_state.enflasyon, st.session_state.pazar_hacmi, st.session_state.kurucu_profili)
-    st.session_state.fin = fin
-    st.session_state.op = fin['op'] 
-    
-    with st.status("🧠 Kuantum Motoru Derin Analizleri Derliyor...", expanded=True) as status:
-        st.write("⚠️ **KRİTİK VERİ:** Institutional-grade simülasyon aktif. Retention Curve, FX Kur Riski ve Step-OPEX analizleri yapılıyor...")
-        st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ", "Bu girişime yatırım yapılır mı?", f"Proje: {st.session_state.g_adi}, NPV: {fin['npv']}, MOIC: {fin['moic']:.1f}x", fin)
+c1, c2 = st.columns(2)
+with c1:
+    if st.button("🚀 STRATEJİK ANALİZİ BAŞLAT"):
+        if st.session_state.cap <= 0 or (st.session_state.satis <= 0 and st.session_state.sub_price <= 0):
+            st.error("⚠️ SİSTEM UYARISI: Lütfen sol menüden 0'dan büyük mantıklı bir CAPEX ve Satış Fiyatı/Abonelik ücreti girin.")
+            st.stop()
+            
+        fin = finans_motoru(st.session_state.cap, st.session_state.maliyet, st.session_state.satis, st.session_state.adet, st.session_state.faiz, st.session_state.sub_price, st.session_state.sub_rate, st.session_state.paz_orani, st.session_state.op_orani, st.session_state.churn, st.session_state.vergi, st.session_state.enflasyon, st.session_state.pazar_hacmi, st.session_state.kurucu_profili, st.session_state.sek)
+        st.session_state.fin = fin
+        st.session_state.op = fin['op'] 
         
-        st.write("💡 **YATIRIMCI REFLEKSİ:** Tornado (Hassasiyet) motoru devreye girdi...")
-        st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay, LTV/CAC: {fin['ltv_cac']}", fin)
-        
-        st.write("🚨 **ACI GERÇEK:** M&A Çarpanları ve Kara Kuğu riskleri sentezleniyor...")
-        st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin)
-        st.session_state.td_swot = ai_rapor_yaz("SWOT ANALİZİ", "Güçlü/zayıf yönleri yorumla.", f"Pazar Çözümü: {st.session_state.kutu2}", fin)
-        
-        st.write("🚪 **EXIT STRATEJİSİ:** M&A potansiyel alıcı profilleri sentezleniyor...")
-        st.session_state.td_risk = ai_rapor_yaz("RİSK MATRİSİ", "Riskleri senaryolar halinde yaz.", f"Sektör: {st.session_state.sek}", fin)
-        st.session_state.td_exit = ai_rapor_yaz("EXIT STRATEJİSİ", "Kim satın alabilir?", f"Proje: {st.session_state.g_adi}", fin)
-        
-        status.update(label="✅ Institutional-Grade Analiz Başarıyla Tamamlandı!", state="complete")
-        st.session_state.analiz_hazir = True
+        with st.status("🧠 Decision Engine Verileri Sentezliyor...", expanded=True) as status:
+            st.write("⚠️ **COMPOSITE KPI:** Sektörel Benchmarklar ve Risk Parçalama devrede...")
+            st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ (AI KARAR MOTORU)", "Kompozit Skora göre aksiyon öner.", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'])
+            st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay", fin['prob_fail'], fin['karar'], fin['score'])
+            st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'])
+            status.update(label="✅ Decision Engine Analizi Tamamlandı!", state="complete")
+            st.session_state.analiz_hazir = True
+
+with c2:
+    if st.button("💾 SENARYOYU PORTFÖYE KAYDET"):
+        if st.session_state.analiz_hazir:
+            st.session_state.portfolio.append({
+                "Proje": st.session_state.g_adi, "Sektör": st.session_state.sek, "Skor": st.session_state.fin['score'], 
+                "MOIC": round(st.session_state.fin['moic'],1), "İflas Riski": round(st.session_state.fin['prob_fail'],1)
+            })
+            st.success(f"✅ {st.session_state.g_adi} Portföye Eklendi! (Kıyaslama sekmesine bakın)")
+        else:
+            st.warning("Önce analizi başlatın.")
 
 # ==========================================
-# 8. SONUÇLARI EKRANA BASMA (TORNADO CHART EKLENDİ)
+# 8. SONUÇLAR VE EKRAN BASTIRMA
 # ==========================================
 if st.session_state.analiz_hazir:
     fin = st.session_state.fin
-    g_adi_safe = html.escape(st.session_state.g_adi) 
     
+    # 🌟 YENİ: DECISION BANNER (Single Score)
     st.markdown(f"""
-    <div style="background: rgba(30, 41, 59, 0.5); border-left: 5px solid #8b5cf6; padding: 25px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-        <h4 style="color: #c4b5fd; margin-top: 0; font-size: 1.2rem;">🔗 Ultimate Quant-Grade Stress Layer</h4>
-        <p style="font-size: 1.08rem; color: #f8fafc; margin: 0; line-height: 1.8;">
-        • <b>Korelasyon & FX Şoku:</b> Makroekonomik şoklar hem talebi hem maliyeti tetikler. Enflasyona dayalı Kur Riski (USD/TRY FX Risk) Donanım ve OPEX'e basamaklı (Step-Function) olarak yedirilmiştir.<br>
-        • <b>Retention Curve & Fallback Exit:</b> Churn oranı sabit tutulmamış, zamanla azalan Power-Law fonksiyonuyla modellenmiştir. EBITDA'nın negatif olduğu büyüme senaryolarında değerleme Ciro Çarpanına (Revenue Fallback) geçiş yapar.<br>
-        • <b>Tornado Sensitivity Engine:</b> İflas olasılığı 'Şişman Kuyruk (Fat Tail)' ile kalibre edilmiş, model karar vermek için NPV'nin hangi parametreye en çok duyarlı olduğunu anlık hesaplamaktadır.
-        </p>
+    <div class="score-banner" style="border-color: {fin['renk']};">
+        <div>
+            <h3 style="color: #94a3b8; margin:0; font-size: 1.2rem; text-transform: uppercase;">KOMPOZİT YATIRIM SKORU</h3>
+            <h2 style="color: {fin['renk']}; margin-top:5px; border:none; font-size: 2rem;">KARAR: {fin['karar']}</h2>
+        </div>
+        <div class="score-number" style="color: {fin['renk']};">{fin['score']}<span style="font-size:1.5rem; color:#64748b;">/100</span></div>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown(f'<div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); padding:35px; border-radius:20px; border-left:12px solid {fin["renk"]}; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);"><h2 style="color:{fin["renk"]}; margin-top:0; letter-spacing: 1px; border:none;">SİSTEM KARARI: {fin["karar"]}</h2><h3 style="color:#6ee7b7; margin-top:15px;">💡 AI YÖNETİCİ ÖZETİ</h3><p style="font-size: 1.08rem; color:#f8fafc; margin-bottom:0; line-height: 1.8;">{st.session_state.td_ozet}</p></div>', unsafe_allow_html=True)
     
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.markdown(f'<div class="metric-card"><div class="metric-title">NPV</div><div class="metric-value">{fin["npv"]:,.0f} ₺</div></div>', unsafe_allow_html=True)
     m2.markdown(f'<div class="metric-card"><div class="metric-title">MOIC (Girişimci Çarpanı)</div><div class="metric-value">{fin["moic"]:.1f}x</div></div>', unsafe_allow_html=True)
     m3.markdown(f'<div class="metric-card"><div class="metric-title">D-LTV / CAC</div><div class="metric-value">{fin["ltv_cac"]:.1f}x</div></div>', unsafe_allow_html=True)
-    
     runway_text = "∞" if fin["runway"] == 999 else f"{fin['runway']} Ay"
-    m4.markdown(f'<div class="metric-card"><div class="metric-title">Runway (Peak Burn)</div><div class="metric-value">{runway_text}</div></div>', unsafe_allow_html=True)
+    m4.markdown(f'<div class="metric-card"><div class="metric-title">Runway (Avg Burn)</div><div class="metric-value">{runway_text}</div></div>', unsafe_allow_html=True)
     m5.markdown(f'<div class="metric-card" style="border-left-color: #f59e0b;"><div class="metric-title">Başabaş (ROI)</div><div class="metric-value">{fin["basabas"]} Ay</div></div>', unsafe_allow_html=True)
 
+    # GRAFİKLER
     fig1 = px.line(y=fin['cf'], x=["1. Yıl","2. Yıl","3. Yıl"], markers=True, color_discrete_sequence=['#60a5fa'])
-    fig1.update_layout(title="1️⃣ 3 Yıllık Nakit Akışı", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
+    fig1.update_layout(title="1️⃣ UFCF (Kaldıraçsız Serbest Nakit Akışı)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
     
-    # 7 NUMARALI SENSITIVITY TORNADO GRAFİĞİ 
-    df_sens = pd.DataFrame(list(fin['sens_data'].items()), columns=['Parametre', 'NPV Değişimi (%)']).sort_values('NPV Değişimi (%)')
-    fig7 = px.bar(df_sens, x='NPV Değişimi (%)', y='Parametre', orientation='h', color='NPV Değişimi (%)', color_continuous_scale=['#ef4444', '#f59e0b', '#10b981'])
-    fig7.update_layout(title="7️⃣ NPV Hassasiyet (Tornado) Analizi - 'Kill Switch' Tespiti", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
-
-    fig3 = go.Figure(data=go.Scatterpolar(r=fin['radar'], theta=['Kârlılık', 'Exit Çarpanı', 'İnovasyon', 'Elde Tutma'], fill='toself', marker=dict(color='#10b981')))
-    fig3.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), title="3️⃣ Stratejik Radar", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
-
-    df_pie = pd.DataFrame({'Gider': ['Üretim', 'Pazarlama', 'Operasyon', 'Vergi'], 'Tutar': [fin['dm'], fin['paz'], st.session_state.op, fin['vergi']]})
-    df_pie = df_pie[df_pie['Tutar'] > 0] 
-    fig4 = px.pie(df_pie, names='Gider', values='Tutar', hole=0.4, color_discrete_sequence=['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'])
-    fig4.update_layout(title="4️⃣ Operasyonel Gider Dağılımı", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
-
-    fig5 = go.Figure(go.Indicator(mode="gauge+number", value=max(0, fin['moic']*10), title={'text': "5️⃣ VC Puanı (MOIC Bazlı)"}, gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "#10b981"}}))
-    fig5.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
+    # 🌟 YENİ: RISK DECOMPOSITION PIE CHART
+    df_risk = pd.DataFrame(list(fin['risk_breakdown'].items()), columns=['Risk Faktörü', 'İflas Nedeni (Adet)'])
+    df_risk = df_risk[df_risk['İflas Nedeni (Adet)'] > 0]
+    if not df_risk.empty:
+        fig_risk = px.pie(df_risk, names='Risk Faktörü', values='İflas Nedeni (Adet)', hole=0.5, color_discrete_sequence=['#ef4444', '#f59e0b', '#8b5cf6'])
+        fig_risk.update_layout(title="🚨 Risk Parçalama (İflas Nedenleri)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
+    else:
+        fig_risk = go.Figure().add_annotation(text="İflas Riski Tespit Edilmedi", showarrow=False, font=dict(size=20, color="#10b981"))
 
     fig6 = px.histogram(x=fin['mc_npv'], nbins=50, color_discrete_sequence=['#ef4444' if fin['prob_fail'] > 50 else '#3b82f6'])
-    fig6.add_vline(x=0, line_dash="dash", line_color="red", annotation_text="İflas Sınırı (0 ₺)")
-    fig6.update_layout(title=f"6️⃣ Monte Carlo Stres Testi (1.000 İterasyon)<br><span style='color:#ef4444;'>İflas Olasılığı (Probability of Failure): %{fin['prob_fail']:.1f}</span>", xaxis_title="Net Bugünkü Değer (NPV)", yaxis_title="Senaryo Sayısı", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
+    fig6.add_vline(x=0, line_dash="dash", line_color="red")
+    fig6.update_layout(title=f"🎲 Monte Carlo Stres Testi<br><span style='color:#ef4444;'>İflas Olasılığı: %{fin['prob_fail']:.1f}</span>", xaxis_title="NPV", yaxis_title="Senaryo", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
 
-    t1, t2 = st.tabs(["📊 7 BOYUTLU CANLI GRAFİKLER", "⚔️ KAPSAMLI STRATEJİK RAPORLAR"])
+    t1, t2, t3 = st.tabs(["📊 METRİKLER & RİSK", "⚔️ AI RAPORLARI", "⚖️ PORTFÖY KIYASLAMA (LEADERBOARD)"])
     with t1:
+        st.markdown(f"<div style='background:rgba(15,23,42,0.8); padding:20px; border-radius:15px; margin-bottom:20px;'><h3 style='color:#6ee7b7;'>🧠 AI Yönetici Özeti & Aksiyon Planı</h3><p>{st.session_state.td_ozet}</p></div>", unsafe_allow_html=True)
         g1, g2 = st.columns(2)
         g1.plotly_chart(fig1, use_container_width=True)
-        g2.plotly_chart(fig7, use_container_width=True) # Tornado Grafiği
-        g3, g4, g5 = st.columns(3)
-        g3.plotly_chart(fig3, use_container_width=True)
-        g4.plotly_chart(fig4, use_container_width=True)
-        g5.plotly_chart(fig5, use_container_width=True)
+        g2.plotly_chart(fig_risk, use_container_width=True) 
         st.plotly_chart(fig6, use_container_width=True)
     with t2:
-        st.markdown(f"<div class='report-section'><h3>1. FİNANSAL STRES ANALİZİ</h3>{st.session_state.td_finans}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='report-section'><h3>1. FİNANSAL STRES & LİKİDİTE (WORKING CAPITAL DAHİL)</h3>{st.session_state.td_finans}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='report-section'><h3>2. PORTER 5 FORCES PAZAR HAKİMİYETİ</h3>{st.session_state.td_porter}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='report-section'><h3>3. SWOT ANALİZİ</h3>{st.session_state.td_swot}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='report-section'><h3>4. RİSK MATRİSİ</h3>{st.session_state.td_risk}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='report-section'><h3>5. EXIT STRATEJİSİ VE POTANSİYEL ALICILAR</h3>{st.session_state.td_exit}</div>", unsafe_allow_html=True)
         st.markdown(szlk_html, unsafe_allow_html=True)
+    with t3:
+        if len(st.session_state.portfolio) > 0:
+            st.markdown("### 🏆 Yatırım Portföyü Kıyaslama Tablosu")
+            df_port = pd.DataFrame(st.session_state.portfolio)
+            df_port = df_port.sort_values(by="Skor", ascending=False).reset_index(drop=True)
+            st.dataframe(df_port.style.background_gradient(cmap='viridis', subset=['Skor']), use_container_width=True)
+        else:
+            st.info("Kıyaslama yapmak için en az bir senaryoyu 'Portföye Kaydet' butonu ile kaydedin.")
