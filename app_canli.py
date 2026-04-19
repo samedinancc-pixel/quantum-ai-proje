@@ -67,11 +67,8 @@ szlk_html = """
 """
 
 # ==========================================
-# 3. KUSURSUZ HAFIZA, SENARYOLAR VE PORTFÖY
+# 3. KUSURSUZ HAFIZA VE SENARYOLAR
 # ==========================================
-if 'portfolio' not in st.session_state:
-    st.session_state.portfolio = []
-
 if 'run_id' not in st.session_state:
     st.session_state.run_id = 0
 
@@ -421,7 +418,7 @@ with st.sidebar:
     st.slider("Aboneliğe Dönüşüm Oranı (%)", 0, 100, key="sub_rate")
     st.slider("Aylık Churn (Kayıp) Oranı (%)", 0.0, 20.0, key="churn", step=0.1)
 
-    # 🌟 ÇÖZÜM 3: EKİBİMİZ KUTUDAN ÇIKTI, SİDEBAR'IN ALTINA ÇİVİLENDİ
+    # EKİBİMİZ
     st.markdown("---")
     st.markdown("""
     <div style='background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2);'>
@@ -433,9 +430,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 7. ANA EKRAN, HİYERARŞİ VE PORTFÖY
+# 7. ANA EKRAN, HİYERARŞİ 
 # ==========================================
-# 🌟 ÇÖZÜM 4: PDF İNDİR / YAZDIR BUTONU (HTML/JS) EKLENDİ
 st.markdown("""
     <a href="javascript:window.print()" class="print-btn">🖨️ Raporu PDF Kaydet</a>
     <div class="web-header">QUANTUM AI | DECISION INTELLIGENCE</div>
@@ -446,40 +442,27 @@ with t1: st.text_area("Pazar Analizi", key="kutu1", height=250, label_visibility
 with t2: st.text_area("Çözüm", key="kutu2", height=250, label_visibility="collapsed")
 st.markdown("<br>", unsafe_allow_html=True)
 
-c1, c2 = st.columns(2)
-with c1:
-    if st.button("🚀 STRATEJİK ANALİZİ BAŞLAT"):
-        if st.session_state.cap <= 0 or (st.session_state.satis <= 0 and st.session_state.sub_price <= 0):
-            st.error("⚠️ SİSTEM UYARISI: Lütfen sol menüden 0'dan büyük mantıklı bir CAPEX ve Satış Fiyatı/Abonelik ücreti girin.")
-            st.stop()
-            
-        fin = finans_motoru(st.session_state.cap, st.session_state.maliyet, st.session_state.satis, st.session_state.adet, st.session_state.faiz, st.session_state.sub_price, st.session_state.sub_rate, st.session_state.paz_orani, st.session_state.op_orani, st.session_state.churn, st.session_state.vergi, st.session_state.enflasyon, st.session_state.pazar_hacmi, st.session_state.kurucu_profili, st.session_state.sek)
-        st.session_state.fin = fin
-        st.session_state.run_id = time.time()
+if st.button("🚀 STRATEJİK ANALİZİ BAŞLAT", use_container_width=True):
+    if st.session_state.cap <= 0 or (st.session_state.satis <= 0 and st.session_state.sub_price <= 0):
+        st.error("⚠️ SİSTEM UYARISI: Lütfen sol menüden 0'dan büyük mantıklı bir CAPEX ve Satış Fiyatı/Abonelik ücreti girin.")
+        st.stop()
         
-        with st.status("🧠 Decision Engine Raporları Üretiyor...", expanded=True) as status:
-            r_id = st.session_state.run_id
-            st.write("⚠️ **COMPOSITE KPI:** Sektörel Benchmarklar ve Risk Parçalama devrede...")
-            st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ (AI KARAR MOTORU)", "Kompozit Skora göre aksiyon öner.", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            st.session_state.td_swot = ai_rapor_yaz("SWOT ANALİZİ", "Güçlü ve Zayıf yönler.", f"Çözüm: {st.session_state.kutu2}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            st.session_state.td_risk = ai_rapor_yaz("RİSK MATRİSİ", "Operasyonel Riskleri analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            st.session_state.td_exit = ai_rapor_yaz("EXIT STRATEJİSİ", "Kim satın alabilir?", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
-            
-            status.update(label="✅ Decision Engine Raporları Tamamlandı!", state="complete")
-            st.session_state.analiz_hazir = True
-
-with c2:
-    if st.button("💾 SENARYOYU PORTFÖYE KAYDET"):
-        if st.session_state.analiz_hazir:
-            st.session_state.portfolio.append({
-                "Proje": st.session_state.g_adi, "Sektör": st.session_state.sek, "Skor": st.session_state.fin['score'], 
-                "MOIC": st.session_state.fin['moic'], "İflas Riski": st.session_state.fin['prob_fail']
-            })
-            st.success(f"✅ {st.session_state.g_adi} Portföye Eklendi! (Kıyaslama sekmesine bakın)")
-        else:
-            st.warning("Önce analizi başlatın.")
+    fin = finans_motoru(st.session_state.cap, st.session_state.maliyet, st.session_state.satis, st.session_state.adet, st.session_state.faiz, st.session_state.sub_price, st.session_state.sub_rate, st.session_state.paz_orani, st.session_state.op_orani, st.session_state.churn, st.session_state.vergi, st.session_state.enflasyon, st.session_state.pazar_hacmi, st.session_state.kurucu_profili, st.session_state.sek)
+    st.session_state.fin = fin
+    st.session_state.run_id = time.time()
+    
+    with st.status("🧠 Decision Engine Raporları Üretiyor...", expanded=True) as status:
+        r_id = st.session_state.run_id
+        st.write("⚠️ **COMPOSITE KPI:** Sektörel Benchmarklar ve Risk Parçalama devrede...")
+        st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ (AI KARAR MOTORU)", "Kompozit Skora göre aksiyon öner.", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        st.session_state.td_swot = ai_rapor_yaz("SWOT ANALİZİ", "Güçlü ve Zayıf yönler.", f"Çözüm: {st.session_state.kutu2}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        st.session_state.td_risk = ai_rapor_yaz("RİSK MATRİSİ", "Operasyonel Riskleri analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        st.session_state.td_exit = ai_rapor_yaz("EXIT STRATEJİSİ", "Kim satın alabilir?", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+        
+        status.update(label="✅ Decision Engine Raporları Tamamlandı!", state="complete")
+        st.session_state.analiz_hazir = True
 
 # ==========================================
 # 8. SONUÇLAR VE EKRAN BASTIRMA
@@ -505,7 +488,6 @@ if st.session_state.analiz_hazir:
     m4.markdown(f'<div class="metric-card"><div class="metric-title">Runway (Avg Burn)</div><div class="metric-value">{runway_text}</div></div>', unsafe_allow_html=True)
     m5.markdown(f'<div class="metric-card" style="border-left-color: #f59e0b;"><div class="metric-title">Başabaş (ROI)</div><div class="metric-value">{fin["basabas"]} Ay</div></div>', unsafe_allow_html=True)
 
-    # 🌟 ÇÖZÜM 2: KAYIP 7 GRAFİK 2'Lİ KOLONLAR HALİNDE GERİ GELDİ (DÜZELTİLDİ)
     fig1 = px.line(y=fin['cf'], x=["1. Yıl","2. Yıl","3. Yıl"], markers=True, color_discrete_sequence=['#60a5fa'])
     fig1.update_layout(title="1️⃣ UFCF (Serbest Nakit Akışı)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
     
@@ -536,7 +518,7 @@ if st.session_state.analiz_hazir:
     fig6.add_vline(x=0, line_dash="dash", line_color="red")
     fig6.update_layout(title=f"7️⃣ Monte Carlo Stres Testi<br><span style='color:#ef4444;'>İflas Olasılığı: %{fin['prob_fail']:.1f}</span>", xaxis_title="NPV", yaxis_title="Senaryo", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
 
-    t1, t2, t3 = st.tabs(["📊 METRİKLER & GRAFİKLER", "⚔️ AI KARAR RAPORLARI", "⚖️ PORTFÖY KIYASLAMA"])
+    t1, t2 = st.tabs(["📊 METRİKLER & GRAFİKLER", "⚔️ AI KARAR RAPORLARI"])
     with t1:
         # GRAFİKLER 2'Lİ KOLONLARLA ÇİZİLİYOR
         g1, g2 = st.columns(2)
@@ -561,23 +543,3 @@ if st.session_state.analiz_hazir:
         st.markdown(f"<div class='report-section'><h3>4. RİSK MATRİSİ</h3>{st.session_state.td_risk}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='report-section'><h3>5. EXIT STRATEJİSİ VE POTANSİYEL ALICILAR</h3>{st.session_state.td_exit}</div>", unsafe_allow_html=True)
         st.markdown(szlk_html, unsafe_allow_html=True)
-        
-    with t3:
-        if len(st.session_state.portfolio) > 0:
-            st.markdown("### 🏆 Yatırım Portföyü Liderlik Tablosu")
-            df_port = pd.DataFrame(st.session_state.portfolio)
-            df_port = df_port.sort_values(by="Skor", ascending=False).reset_index(drop=True)
-            
-            # 🌟 ÇÖZÜM 1: MATPLOTLIB ÇÖKMESİNİ ENGELLEYEN NATIVE STREAMLIT TABLOSU
-            st.dataframe(
-                df_port,
-                column_config={
-                    "Skor": st.column_config.ProgressColumn("Yatırım Skoru", format="%d/100", min_value=0, max_value=100),
-                    "MOIC": st.column_config.NumberColumn("MOIC", format="%.1fx"),
-                    "İflas Riski": st.column_config.NumberColumn("İflas Riski", format="%%%d")
-                },
-                hide_index=True,
-                use_container_width=True
-            )
-        else:
-            st.info("Kıyaslama yapmak için en az bir senaryoyu 'Portföye Kaydet' butonu ile kaydedin.")
