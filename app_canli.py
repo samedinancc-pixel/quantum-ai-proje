@@ -50,7 +50,15 @@ li[role="option"]:hover, li[role="option"][aria-selected="true"] { background-co
 .stTabs [data-baseweb="tab-list"] { background-color: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 5px; gap: 10px; }
 .stTabs [data-baseweb="tab"] { color: #94a3b8; font-weight: 700; border-radius: 8px; padding: 10px 20px; }
 .stTabs [aria-selected="true"] { background-color: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; }
-@media print { [data-testid="stSidebar"], .stButton { display: none !important; } }
+.print-btn { float: right; background: #38bdf8; color: #030712 !important; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; transition: 0.3s; margin-top: 10px;}
+.print-btn:hover { background: #0ea5e9; transform: scale(1.05); }
+
+/* 🌟 GİZLİ PDF ŞABLONU İÇİN CSS 🌟 */
+.print-only { display: none; }
+@media print { 
+    .print-btn, [data-testid="stSidebar"], .stButton { display: none !important; } 
+    .print-only { display: block !important; margin-top: 50px; }
+}
 </style> 
 """, unsafe_allow_html=True) 
 
@@ -117,7 +125,7 @@ def senaryo_tetikle():
     elif secim == "🚁 AgriFly Drone (AgriTech)": yukle_drone()
 
 # ==========================================
-# 4. FİNANS MATEMATİĞİ (V12 MOTOR)
+# 4. FİNANS MATEMATİĞİ
 # ==========================================
 @st.cache_data(show_spinner=False)
 def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_orani, enflasyon_orani, pazar_hacmi, kurucu_profili, sektor):
@@ -334,7 +342,7 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
     }
 
 # ==========================================
-# 5. ASKERİ YAPAY ZEKA OTONOM KARAR MOTORU 
+# 5. ASKERİ YAPAY ZEKA OTONOM KARAR MOTORU
 # ==========================================
 def safe_ai_call(messages, retries=3):
     for i in range(retries):
@@ -542,3 +550,34 @@ if st.session_state.analiz_hazir:
         st.markdown(f"<div class='report-section'><h3>4. RİSK MATRİSİ</h3>{st.session_state.td_risk}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='report-section'><h3>5. EXIT STRATEJİSİ VE POTANSİYEL ALICILAR</h3>{st.session_state.td_exit}</div>", unsafe_allow_html=True)
         st.markdown(szlk_html, unsafe_allow_html=True)
+
+    # ==========================================
+    # 9. GİZLİ YAZDIRMA (PDF) ŞABLONU 
+    # ==========================================
+    st.markdown(f"""
+    <div class="print-only">
+
+    <hr>
+
+    ## 🧠 YAPAY ZEKA DEĞERLEME RAPORLARI
+
+    ### 1. AI Yönetici Özeti & Aksiyon Planı
+    {st.session_state.td_ozet}
+
+    ### 2. Finansal Stres & Likidite (NWC)
+    {st.session_state.td_finans}
+
+    ### 3. Porter 5 Forces Pazar Hakimiyeti
+    {st.session_state.td_porter}
+
+    ### 4. SWOT Analizi
+    {st.session_state.td_swot}
+
+    ### 5. Risk Matrisi
+    {st.session_state.td_risk}
+
+    ### 6. Exit Stratejisi ve Potansiyel Alıcılar
+    {st.session_state.td_exit}
+
+    </div>
+    """, unsafe_allow_html=True)
