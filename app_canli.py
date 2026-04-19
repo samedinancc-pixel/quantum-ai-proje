@@ -52,11 +52,25 @@ li[role="option"]:hover, li[role="option"][aria-selected="true"] { background-co
 </style> 
 """, unsafe_allow_html=True) 
 
+szlk_html = """
+<div style="background: rgba(30, 41, 59, 0.5); border-left: 4px solid #f59e0b; padding: 30px; margin-top: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="color: #fbbf24; margin-top:0;">📖 YATIRIMCI SÖZLÜĞÜ VE KAVRAMLAR</h3>
+    <p>• <b style="color:#ffffff;">NPV:</b> Gelecekteki nakit akışlarının risk ve faiz düşülerek hesaplanmış bugünkü net değeridir.<br>
+    • <b style="color:#ffffff;">MOIC (Mutiple on Invested Capital):</b> Yatırılan sermayenin kaç katı geri dönüş sağlandığını gösterir (Gerçek VC Standardı).<br>
+    • <b style="color:#ffffff;">Discounted LTV / CAC:</b> Bir müşterinin bıraktığı ömür boyu kârın, WACC ve Churn'e indirgenmiş, onu elde etme maliyetine oranıdır.<br>
+    • <b style="color:#ffffff;">Başabaş (Break-Even):</b> Yatırımcının koyduğu paranın tamamen geri dönüp şirketin net kâra geçtiği aydır.<br>
+    • <b style="color:#ffffff;">S-Curve & Segmented Cohorts:</b> Büyüme lojistik bir eğri izler. Müşteriler SMB (Yüksek Churn) ve Enterprise (Yüksek NRR) olarak ikiye ayrılarak gerçekçi modellenir.</p>
+</div>
+"""
+
 # ==========================================
 # 3. KUSURSUZ HAFIZA, SENARYOLAR VE PORTFÖY
 # ==========================================
 if 'portfolio' not in st.session_state:
-    st.session_state.portfolio = [] # Multi-Scenario Karşılaştırma Hafızası
+    st.session_state.portfolio = []
+
+if 'run_id' not in st.session_state:
+    st.session_state.run_id = 0 # Akıllı Hafıza Kırıcı (Cache-Buster)
 
 if 'g_adi' not in st.session_state:
     st.session_state.update({
@@ -69,7 +83,7 @@ if 'g_adi' not in st.session_state:
         'fin': {}, 'sen_sec_box': 'Seçiniz...'
     })
 
-# BENCHMARK SÖZLÜĞÜ (SEKTÖREL REFERANSLAR)
+# BENCHMARK SÖZLÜĞÜ 
 BENCHMARKS = {
     'B2B Finansal Teknoloji': {'ltv_cac': 4.0, 'moic': 4.5, 'rule40': 40, 'margin': 0.80},
     'IoT Donanım': {'ltv_cac': 2.5, 'moic': 3.0, 'rule40': 25, 'margin': 0.40},
@@ -77,12 +91,27 @@ BENCHMARKS = {
     'Default': {'ltv_cac': 3.0, 'moic': 3.5, 'rule40': 30, 'margin': 0.60}
 }
 
+# 🌟 DEVASA SENARYO METİNLERİ
 def yukle_termos():
-    st.session_state.update({'g_adi': 'EcoKupa v2', 'sek': 'IoT Donanım', 'cap': 3500000, 'maliyet': 850, 'satis': 1499, 'adet': 8500, 'faiz': 45, 'sub_price': 49, 'sub_rate': 15, 'paz_orani': 20, 'op_orani': 15, 'pazar_hacmi': 2.5, 'churn': 5.0, 'vergi': 25, 'enflasyon': 35, 'kurucu_profili': 'Standart Kurucu', 'kutu1': 'Pazar inovasyondan uzak.', 'kutu2': 'Aktif IoT ekosistemi.', 'analiz_hazir': False})
+    st.session_state.update({
+        'g_adi': 'EcoKupa v2', 'sek': 'IoT Donanım', 'cap': 3500000, 'maliyet': 850, 'satis': 1499, 'adet': 8500, 'faiz': 45, 'sub_price': 49, 'sub_rate': 15, 'paz_orani': 20, 'op_orani': 15, 'pazar_hacmi': 2.5, 'churn': 5.0, 'vergi': 25, 'enflasyon': 35, 'kurucu_profili': 'Standart Kurucu', 
+        'kutu1': 'Global taşınabilir içecek ve termos pazarı (TAM) devasa bir hacme sahip olmasına rağmen, onlarca yıldır yıkıcı bir inovasyondan uzak, tamamen statik ve "aptal" (dumb) ürünlerle domine edilmektedir. Geleneksel üreticiler (Yeti, Stanley vb.) yalnızca pasif ısı yalıtımı satmakta; müşteri davranışına dair hiçbir veri (data) üretememekte ve kullanıcı sadakatini (retention) ölçecek bir ekosistem kuramamaktadır. Modern Y ve Z kuşağı profesyonelleri ise sadece bir "kap" değil; kişisel sağlık metriklerini otonom olarak takip eden, mobil entegre ve çevresel sürdürülebilirlik bilincine sahip "akıllı" bir yaşam asistanı talep etmektedir. Mevcut donanım pazarı, tekrarlayan gelir (recurring revenue) yaratma konusunda tamamen sınıfta kalmıştır.', 
+        'kutu2': 'EcoKupa v2; sıradan bir donanım ürünü değil, HaaS (Hardware-as-a-Service) modelini kullanan entegre bir IoT ekosistemidir. Ürünün tabanına yerleştirilen patentli mikro-sensörler, sıvının yoğunluğunu, tüketim hızını ve sıcaklığını anlık olarak analiz ederek Bluetooth üzerinden mobil uygulamaya aktarır. Kullanıcıya yapay zeka destekli "Kişiselleştirilmiş Hidrasyon Koçluğu" sunulur. Bu strateji sayesinde işletme, sadece fiziksel ürün satışından elde edilen %40 marjla yetinmez; kullanıcıları %85 kar marjına sahip aylık premium yazılım aboneliğine (SaaS) dönüştürerek Yaşam Boyu Değeri (D-LTV) maksimize eder ve rakiplerin ulaşamayacağı bir veri hendeği (data moat) inşa eder.', 
+        'analiz_hazir': False})
+
 def yukle_saas():
-    st.session_state.update({'g_adi': 'QuantumAI Enterprise', 'sek': 'B2B Finansal Teknoloji', 'cap': 4500000, 'maliyet': 0, 'satis': 4500, 'adet': 2500, 'faiz': 40, 'sub_price': 299, 'sub_rate': 35, 'paz_orani': 30, 'op_orani': 25, 'pazar_hacmi': 14.8, 'churn': 4.5, 'vergi': 25, 'enflasyon': 40, 'kurucu_profili': 'Tier-1 (Kriz Yöneticisi)', 'kutu1': 'Girişimlerin %90\'ı batıyor.', 'kutu2': 'Otonom Karar Destek Motoru.', 'analiz_hazir': False})
+    st.session_state.update({
+        'g_adi': 'QuantumAI Enterprise', 'sek': 'B2B Finansal Teknoloji', 'cap': 4500000, 'maliyet': 0, 'satis': 4500, 'adet': 2500, 'faiz': 40, 'sub_price': 299, 'sub_rate': 35, 'paz_orani': 30, 'op_orani': 25, 'pazar_hacmi': 14.8, 'churn': 4.5, 'vergi': 25, 'enflasyon': 40, 'kurucu_profili': 'Tier-1 (Kriz Yöneticisi)', 
+        'kutu1': 'Girişimcilik ve erken aşama yatırım (VC) ekosistemindeki en acımasız gerçek, kurulan her 10 yeni girişimin 9\'unun "Ölüm Vadisi" (Death Valley) aşamasında nakit yetersizliğinden batmasıdır. Bu sistematik çöküşün kök nedeni; kurucuların ve yatırımcıların, karar alma süreçlerini tamamen statik, tek boyutlu ve insan ön yargısına (bias) açık Excel tablolarına hapsetmesidir. Geleneksel modeller; makroekonomik şokları, müşteri edinme maliyetindeki (CAC) organik enflasyonu ve pazar doygunluk regresyonunu eşzamanlı olarak simüle edemez. Kurumsal finansal danışmanlık (Big 4) ise aylar süren, milyon dolarlık bütçeler gerektiren hantal bir yapıdır. Bu durum pazarda derin bir "Bilgi Asimetrisi" yaratmaktadır.', 
+        'kutu2': 'Quantum AI, hantal değerleme endüstrisini anında erişilebilir bir SaaS modeline dönüştüren "Otonom Karar Zekası" (Decision Intelligence) platformudur. Python mimarisi üzerine kurulu sistem; işletmenin finansal dinamiklerini alır, 1.000 iterasyonlu Monte Carlo simülasyonu ve Student-T dağılımı kullanarak piyasadaki en ekstrem "Kara Kuğu" (Black Swan) krizlerine karşı stres testine sokar. İçerisindeki Agentic yapay zeka (Llama 3.3) sadece soğuk metrikler üretmekle kalmaz; NPV, MOIC ve Rule of 40 rasyolarını endüstri standartlarıyla kıyaslayarak (Benchmarking), kuruculara "Fiyatı artır, pazarlamayı %10 kıs" gibi otonom ve doğrudan uygulanabilir (Actionable) kurtarma reçeteleri sunar.', 
+        'analiz_hazir': False})
+
 def yukle_drone():
-    st.session_state.update({'g_adi': 'AgriFly - Otonom Tarım', 'sek': 'AgriTech / Drone', 'cap': 2800000, 'maliyet': 45000, 'satis': 125000, 'adet': 150, 'faiz': 35, 'sub_price': 1500, 'sub_rate': 65, 'paz_orani': 15, 'op_orani': 20, 'pazar_hacmi': 4.2, 'churn': 3.5, 'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Çaylak (Yüksek Varyans)', 'kutu1': 'Manuel ilaçlama zehirliyor.', 'kutu2': 'Otonom tespit ve ilaçlama.', 'analiz_hazir': False})
+    st.session_state.update({
+        'g_adi': 'AgriFly - Otonom Tarım', 'sek': 'AgriTech / Drone', 'cap': 2800000, 'maliyet': 45000, 'satis': 125000, 'adet': 150, 'faiz': 35, 'sub_price': 1500, 'sub_rate': 65, 'paz_orani': 15, 'op_orani': 20, 'pazar_hacmi': 4.2, 'churn': 3.5, 'vergi': 25, 'enflasyon': 30, 'kurucu_profili': 'Çaylak (Yüksek Varyans)', 
+        'kutu1': 'Küresel tarım sektörü; artan iklim krizi, daralan kâr marjları ve karbon ayak izi regülasyonları nedeniyle eşi benzeri görülmemiş bir çıkmazın içindedir. Geleneksel tarım uygulamalarında, hastalık veya zararlılarla mücadele için binlerce hektarlık arazilere traktör veya uçaklarla "battaniye" (blanket) usulü manuel kimyasal püskürtülmektedir. Bu arkaik yöntem; devasa boyutlarda kimyasal israfına (OPEX patlaması), toprağın toksikleşmesine, yeraltı sularının kirlenmesine ve mahsulde verim kaybına (yield degradation) yol açmaktadır. Büyük ölçekli çiftçilerin, arazilerindeki mikro-stresleri gerçek zamanlı izleyebilecekleri uygulanabilir bir teknolojik altyapısı bulunmamaktadır.', 
+        'kutu2': 'AgriFly, donanım satmanın ötesine geçerek "Hizmet Olarak Robotik" (RaaS) modelini uygulayan uçtan uca bir "Hassas Tarım" (Precision Agriculture) çözümüdür. Gelişmiş multispektral kameralar ve Edge-AI (Uçta Yapay Zeka) ile donatılmış otonom drone filomuz, devasa tarlaları santimetre hassasiyetiyle tarar. Bitkilerin yaydığı ışık spektrumlarını (NDVI indeksini) analiz ederek hastalıklı, susuz veya mantar enfeksiyonlu spesifik bölgeleri tespit eder. Kimyasal ilacı arazinin tamamına değil, yalnızca o sorunlu bitkiye milimetrik olarak püskürtür. Bu yıkıcı teknoloji, çiftçinin agrokimyasal maliyetlerini anında %75 oranında düşürürken operasyonel kârlılığı maksimize eder.', 
+        'analiz_hazir': False})
 
 def senaryo_tetikle():
     secim = st.session_state.sen_sec_box
@@ -91,7 +120,7 @@ def senaryo_tetikle():
     elif secim == "🚁 AgriFly Drone (AgriTech)": yukle_drone()
 
 # ==========================================
-# 4. FİNANS MATEMATİĞİ (ULTIMATE DECISION ENGINE)
+# 4. FİNANS MATEMATİĞİ (V12 MOTOR AYNI KALDI)
 # ==========================================
 @st.cache_data(show_spinner=False)
 def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_orani, enflasyon_orani, pazar_hacmi, kurucu_profili, sektor):
@@ -128,7 +157,7 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
         base_churn_ent = base_churn_smb * 0.4 
 
         cohorts_smb, cohorts_ent = [], []
-        prev_nwc = 0 # Net Working Capital tracking
+        prev_nwc = 0 
 
         for month in range(1, 61):
             fx_factor = (1 + (enflasyon_orani * 0.85) / 100 / 12) ** month
@@ -189,9 +218,8 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
             ebit = ebitda - depreciation
             tax = ebit * (vergi_orani/100) if ebit > 0 else 0
             
-            # 🌟 YENİ: BALANCE SHEET / WORKING CAPITAL EKLENDİ (Gerçek Nakit Akışı)
-            receivables = rev * (30/360) # 30 gün alacak
-            payables = (hw_cost + opex) * (45/360) # 45 gün borç ödeme
+            receivables = rev * (30/360) 
+            payables = (hw_cost + opex) * (45/360) 
             current_nwc = receivables - payables
             delta_nwc = current_nwc - prev_nwc
             prev_nwc = current_nwc
@@ -199,7 +227,6 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
             if month <= 18 and ebitda < 0: ebitda *= 1.2 
             ebitdas.append(ebitda)
             
-            # Unlevered Free Cash Flow (UFCF)
             net_cf = ebitda - tax - delta_nwc 
             und_cfs.append(net_cf)
             dis_cfs.append(net_cf / (1 + wacc_m)**month)
@@ -256,7 +283,6 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
     base = run_cycle(1.0, 1.0, 1.0, is_mc=False)
     mc_npvs = []
     
-    # 🌟 YENİ: RİSK DECOMPOSITION (Neden batıyoruz?)
     risk_breakdown = {"Talep/Pazar Eksikliği": 0, "Maliyet/Operasyon Çöküşü": 0, "Churn/Müşteri Kaybı": 0}
 
     for _ in range(1000): 
@@ -271,7 +297,6 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
         mc_npvs.append(res['npv'])
         
         if res['npv'] < 0:
-            # En büyük şoku tespit et
             shocks = {"Talep/Pazar Eksikliği": 1 - d_shock, "Maliyet/Operasyon Çöküşü": c_shock - 1, "Churn/Müşteri Kaybı": ch_shock - 1}
             worst_reason = max(shocks, key=shocks.get)
             risk_breakdown[worst_reason] += 1
@@ -279,7 +304,6 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
     prob_fail = (np.sum(np.array(mc_npvs) < 0) / 1000) * 100
     moic = base['total_return'] / b if b > 0 else 0
 
-    # 🌟 YENİ: SINGLE INVESTMENT SCORE & BENCHMARKING
     bm = BENCHMARKS.get(sektor, BENCHMARKS['Default'])
     
     score_moic = min(100, (moic / bm['moic']) * 100) * 0.35
@@ -293,45 +317,54 @@ def finans_motoru(b, m, s, a, faiz, sub_p, sub_r, paz_o, op_o, churn, vergi_oran
     elif final_score >= 60: karar, renk = "İZLE / BÜYÜT (HOLD & MONITOR)", "#f59e0b"
     else: karar, renk = "YATIRIM YAPILAMAZ (REJECT)", "#ef4444"
 
-    sens_churn = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_churn=churn*1.2)['npv']
-    sens_paz = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_paz=paz_o*0.8)['npv']
-    sens_sub = run_cycle(1.0, 1.0, 1.0, is_mc=False, v_sub=sub_p*0.8)['npv']
-    
-    sens_data = {
-        "Churn Oranı %20 Artarsa": ((sens_churn - base['npv']) / abs(base['npv'])) * 100 if base['npv']!=0 else 0,
-        "Pazarlama Bütçesi %20 Düşerse": ((sens_paz - base['npv']) / abs(base['npv'])) * 100 if base['npv']!=0 else 0,
-        "Abonelik Fiyatı %20 Düşerse": ((sens_sub - base['npv']) / abs(base['npv'])) * 100 if base['npv']!=0 else 0
-    }
-
     return {
         "npv": base['npv'], "moic": moic, "runway": base['runway'], "ltv_cac": base['ltv_cac'],
         "basabas": base['basabas'], "cf": [base['cf1'], base['cf2'], base['cf3']],
         "ciro": base['ciro'], "dm": base['dm'], "paz": base['paz'], "op": base['op'], "vergi": base['vergi'],
-        "radar": [min(100, max(0, int(moic*20))), min(100, int(base['exit_mult']*20)), 90, max(0, int(100-churn*4))],
-        "karar": karar, "renk": renk, "prob_fail": prob_fail, "mc_npv": mc_npvs, "sens_data": sens_data,
+        "karar": karar, "renk": renk, "prob_fail": prob_fail, "mc_npv": mc_npvs, 
         "score": final_score, "risk_breakdown": risk_breakdown
     }
 
 # ==========================================
-# 5. YAPAY ZEKA OTONOM KARAR MOTORU 
+# 5. ASKERİ YAPAY ZEKA OTONOM KARAR MOTORU (DÜZELTİLDİ!)
 # ==========================================
 def safe_ai_call(messages, retries=3):
     for i in range(retries):
         try:
-            completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=messages, temperature=0.45, timeout=20)
+            # Yaratıcılık artsın diye temp 0.65, timeout 25 sn yapıldı
+            completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=messages, temperature=0.65, timeout=25)
             return completion.choices[0].message.content.strip()
         except Exception as e:
             if i == retries - 1: raise e
             time.sleep(2 ** i) 
 
+# AKILLI HAFIZA (CACHE) KIRICI: Sadece run_id değiştiğinde AI sıfırdan yazacak!
 @st.cache_data(show_spinner=False)
-def ai_rapor_yaz(baslik, istek, veri, prob_fail, karar, score):
-    if baslik == "YÖNETİCİ ÖZETİ (AI KARAR MOTORU)":
-        sistem_prompt = "Sen McKinsey seviyesinde bir AI Karar Motorusun. Rakamları özetlemekle kalma; Kompozit Yatırım Skoruna göre girişimi kurtarmak veya büyütmek için veri odaklı 2 spesifik aksiyon öner."
-    else:
-        sistem_prompt = "Sen Goldman Sachs seviyesinde kıdemli bir kurumsal stratejistsin. ASLA yüzeysel özetler verme."
+def ai_rapor_yaz(baslik, istek, veri, prob_fail, karar, score, run_id):
     
-    user_prompt = f"RAPOR KONUSU: {baslik}\nSİSTEM VERİLERİ: {veri}\nYatırım Skoru: {score}/100\nİflas Olasılığı: %{prob_fail}\nİSTENEN: {istek}"
+    sistem_prompt = """Sen Wall Street'in en acımasız ve vizyoner fon yöneticilerinden birisin (McKinsey / Goldman Sachs kalibresinde).
+    Sana verilen metrikleri yüzeysel geçmek KESİNLİKLE YASAKTIR. Raporlarını bir kurumsal yönetim kuruluna sunar gibi hazırlayacaksın.
+    
+    ÇIKTI KURALLARI:
+    1. Kısa, yüzeysel, 1-2 cümlelik cevaplar VEREMEZSİN. Raporlar en az 3 detaylı paragraftan oluşmalıdır.
+    2. Metinlerinde kalın yazılar (**bold**), alt başlıklar ve profesyonel bir üslup kullanacaksın.
+    3. Verilen sayısal verileri (NPV, Skor, İflas Riski) mutlaka analizine entegre edeceksin.
+    4. "İyi görünüyor" gibi klişeler yerine "Şu metrik operasyonel bir risktir, şu şekilde çözülmeli" diyeceksin."""
+
+    if baslik == "YÖNETİCİ ÖZETİ (AI KARAR MOTORU)":
+        istek += "\n\nLütfen girişimi değerlendiren tam 3 uzun paragraf stratejik özet yaz ve ardından tam 5 maddelik detaylı bir eylem (aksiyon) planı çıkar."
+    elif baslik == "FİNANSAL STRES ANALİZİ":
+        istek += "\n\nLikidite durumunu, nakit yanma hızını ve LTV/CAC oranını baz alarak işletmenin iflas riskini ve hayatta kalma stresini alt başlıklarla derinlemesine açıkla."
+    elif baslik == "PORTER 5 FORCES":
+        istek += "\n\n5 kuvvetin HER BİRİNİ (Rakipler, Yeni Girenler, Tedarikçiler, Müşteriler, İkameler) ayrı ayrı kalın başlıklar altında derinlemesine analiz et."
+    elif baslik == "SWOT ANALİZİ":
+        istek += "\n\nGüçlü yönler, Zayıf yönler, Fırsatlar ve Tehditleri ayrı başlıklar halinde, her birinin altına en az 3'er vurucu madde yazarak açıkla."
+    elif baslik == "RİSK MATRİSİ":
+        istek += "\n\nEn kritik 3 operasyonel ve makroekonomik riski belirle ve her biri için detaylı bir mitigasyon (kurtarma) stratejisi yaz."
+    elif baslik == "EXIT STRATEJİSİ":
+        istek += "\n\nBu girişimi ileride kim, hangi sebeple ve hangi değerleme çarpanıyla satın almak ister? Potansiyel M&A senaryolarını detaylıca kurgula."
+    
+    user_prompt = f"RAPOR KONUSU: {baslik}\nSİSTEM VERİLERİ: {veri}\nYatırım Skoru: {score}/100\nİflas Olasılığı: %{prob_fail}\nKARAR: {karar}\n\nİSTENEN: {istek}"
     
     try:
         return safe_ai_call([{"role": "system", "content": sistem_prompt}, {"role": "user", "content": user_prompt}])
@@ -384,8 +417,8 @@ with st.sidebar:
 st.markdown('<div class="web-header">QUANTUM AI | DECISION INTELLIGENCE</div>', unsafe_allow_html=True)
 
 t1, t2 = st.tabs(["🎯 Pazar Problemi", "🛡️ Stratejik Çözüm"])
-with t1: st.text_area("Pazar Analizi", key="kutu1", height=200, label_visibility="collapsed")
-with t2: st.text_area("Çözüm", key="kutu2", height=200, label_visibility="collapsed")
+with t1: st.text_area("Pazar Analizi", key="kutu1", height=250, label_visibility="collapsed")
+with t2: st.text_area("Çözüm", key="kutu2", height=250, label_visibility="collapsed")
 st.markdown("<br>", unsafe_allow_html=True)
 
 c1, c2 = st.columns(2)
@@ -397,14 +430,21 @@ with c1:
             
         fin = finans_motoru(st.session_state.cap, st.session_state.maliyet, st.session_state.satis, st.session_state.adet, st.session_state.faiz, st.session_state.sub_price, st.session_state.sub_rate, st.session_state.paz_orani, st.session_state.op_orani, st.session_state.churn, st.session_state.vergi, st.session_state.enflasyon, st.session_state.pazar_hacmi, st.session_state.kurucu_profili, st.session_state.sek)
         st.session_state.fin = fin
-        st.session_state.op = fin['op'] 
         
-        with st.status("🧠 Decision Engine Verileri Sentezliyor...", expanded=True) as status:
+        # 🌟 ZAMAN DAMGASI (CACHE BUSTER): Sadece bu butona basılınca AI yeni rapor yazacak!
+        st.session_state.run_id = time.time()
+        
+        with st.status("🧠 Decision Engine Raporları Üretiyor...", expanded=True) as status:
+            r_id = st.session_state.run_id
             st.write("⚠️ **COMPOSITE KPI:** Sektörel Benchmarklar ve Risk Parçalama devrede...")
-            st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ (AI KARAR MOTORU)", "Kompozit Skora göre aksiyon öner.", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'])
-            st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay", fin['prob_fail'], fin['karar'], fin['score'])
-            st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'])
-            status.update(label="✅ Decision Engine Analizi Tamamlandı!", state="complete")
+            st.session_state.td_ozet = ai_rapor_yaz("YÖNETİCİ ÖZETİ (AI KARAR MOTORU)", "Kompozit Skora göre aksiyon öner.", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            st.session_state.td_finans = ai_rapor_yaz("FİNANSAL STRES ANALİZİ", "Şirketin nakit dayanıklılığını yorumla.", f"Runway: {fin['runway']} ay", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            st.session_state.td_porter = ai_rapor_yaz("PORTER 5 FORCES", "Rekabet gücünü analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            st.session_state.td_swot = ai_rapor_yaz("SWOT ANALİZİ", "Güçlü ve Zayıf yönler.", f"Çözüm: {st.session_state.kutu2}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            st.session_state.td_risk = ai_rapor_yaz("RİSK MATRİSİ", "Operasyonel Riskleri analiz et.", f"Sektör: {st.session_state.sek}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            st.session_state.td_exit = ai_rapor_yaz("EXIT STRATEJİSİ", "Kim satın alabilir?", f"Proje: {st.session_state.g_adi}", fin['prob_fail'], fin['karar'], fin['score'], r_id)
+            
+            status.update(label="✅ Decision Engine Raporları Tamamlandı!", state="complete")
             st.session_state.analiz_hazir = True
 
 with c2:
@@ -424,7 +464,6 @@ with c2:
 if st.session_state.analiz_hazir:
     fin = st.session_state.fin
     
-    # 🌟 YENİ: DECISION BANNER (Single Score)
     st.markdown(f"""
     <div class="score-banner" style="border-color: {fin['renk']};">
         <div>
@@ -443,11 +482,9 @@ if st.session_state.analiz_hazir:
     m4.markdown(f'<div class="metric-card"><div class="metric-title">Runway (Avg Burn)</div><div class="metric-value">{runway_text}</div></div>', unsafe_allow_html=True)
     m5.markdown(f'<div class="metric-card" style="border-left-color: #f59e0b;"><div class="metric-title">Başabaş (ROI)</div><div class="metric-value">{fin["basabas"]} Ay</div></div>', unsafe_allow_html=True)
 
-    # GRAFİKLER
     fig1 = px.line(y=fin['cf'], x=["1. Yıl","2. Yıl","3. Yıl"], markers=True, color_discrete_sequence=['#60a5fa'])
     fig1.update_layout(title="1️⃣ UFCF (Kaldıraçsız Serbest Nakit Akışı)", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
     
-    # 🌟 YENİ: RISK DECOMPOSITION PIE CHART
     df_risk = pd.DataFrame(list(fin['risk_breakdown'].items()), columns=['Risk Faktörü', 'İflas Nedeni (Adet)'])
     df_risk = df_risk[df_risk['İflas Nedeni (Adet)'] > 0]
     if not df_risk.empty:
@@ -460,7 +497,7 @@ if st.session_state.analiz_hazir:
     fig6.add_vline(x=0, line_dash="dash", line_color="red")
     fig6.update_layout(title=f"🎲 Monte Carlo Stres Testi<br><span style='color:#ef4444;'>İflas Olasılığı: %{fin['prob_fail']:.1f}</span>", xaxis_title="NPV", yaxis_title="Senaryo", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="#cbd5e1")
 
-    t1, t2, t3 = st.tabs(["📊 METRİKLER & RİSK", "⚔️ AI RAPORLARI", "⚖️ PORTFÖY KIYASLAMA (LEADERBOARD)"])
+    t1, t2, t3 = st.tabs(["📊 METRİKLER & RİSK", "⚔️ AI RAPORLARI", "⚖️ PORTFÖY KIYASLAMA"])
     with t1:
         st.markdown(f"<div style='background:rgba(15,23,42,0.8); padding:20px; border-radius:15px; margin-bottom:20px;'><h3 style='color:#6ee7b7;'>🧠 AI Yönetici Özeti & Aksiyon Planı</h3><p>{st.session_state.td_ozet}</p></div>", unsafe_allow_html=True)
         g1, g2 = st.columns(2)
@@ -470,6 +507,9 @@ if st.session_state.analiz_hazir:
     with t2:
         st.markdown(f"<div class='report-section'><h3>1. FİNANSAL STRES & LİKİDİTE (WORKING CAPITAL DAHİL)</h3>{st.session_state.td_finans}</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='report-section'><h3>2. PORTER 5 FORCES PAZAR HAKİMİYETİ</h3>{st.session_state.td_porter}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='report-section'><h3>3. SWOT ANALİZİ</h3>{st.session_state.td_swot}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='report-section'><h3>4. RİSK MATRİSİ</h3>{st.session_state.td_risk}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='report-section'><h3>5. EXIT STRATEJİSİ VE POTANSİYEL ALICILAR</h3>{st.session_state.td_exit}</div>", unsafe_allow_html=True)
         st.markdown(szlk_html, unsafe_allow_html=True)
     with t3:
         if len(st.session_state.portfolio) > 0:
